@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Moon, Sun } from 'lucide-react';
 import { mockStocks, filterOptions, signals, orderByOptions } from '../mockData';
 import FilterPanel from '../components/FilterPanel';
-import StockTable from '../components/StockTable';
+import StockTable from '../components/StockTableEnhanced';
+import { useTheme } from '../context/ThemeContext';
 import '../styles/Screener.css';
 
 const Screener = () => {
