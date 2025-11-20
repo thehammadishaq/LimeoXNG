@@ -1,5 +1,105 @@
 // Comprehensive mock stock data for Finviz screener clone
 
+// Generate historical price data for charts
+const generateChartData = (basePrice, days = 60) => {
+  const data = [];
+  let price = basePrice;
+  const today = new Date();
+  
+  for (let i = days; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    
+    // Random walk with slight upward bias
+    const change = (Math.random() - 0.48) * (basePrice * 0.03);
+    price = Math.max(price + change, basePrice * 0.5);
+    
+    data.push({
+      date: date.toISOString().split('T')[0],
+      price: parseFloat(price.toFixed(2)),
+      volume: Math.floor(Math.random() * 50000000 + 1000000)
+    });
+  }
+  
+  return data;
+};
+
+// Mock news data
+export const mockNews = [
+  {
+    id: 1,
+    date: '2025-01-20',
+    time: '09:30 AM',
+    source: 'Reuters',
+    headline: 'Apple Reports Record Q4 Earnings, Beats Expectations',
+    sentiment: 'positive',
+    tickers: ['AAPL']
+  },
+  {
+    id: 2,
+    date: '2025-01-20',
+    time: '08:15 AM',
+    source: 'Bloomberg',
+    headline: 'Tesla Unveils New Model Line for 2025',
+    sentiment: 'positive',
+    tickers: ['TSLA']
+  },
+  {
+    id: 3,
+    date: '2025-01-20',
+    time: '07:45 AM',
+    source: 'CNBC',
+    headline: 'Microsoft Azure Revenue Growth Slows in Q4',
+    sentiment: 'neutral',
+    tickers: ['MSFT']
+  },
+  {
+    id: 4,
+    date: '2025-01-19',
+    time: '04:30 PM',
+    source: 'Wall Street Journal',
+    headline: 'Amazon Expands Same-Day Delivery to 50 New Cities',
+    sentiment: 'positive',
+    tickers: ['AMZN']
+  },
+  {
+    id: 5,
+    date: '2025-01-19',
+    time: '03:20 PM',
+    source: 'MarketWatch',
+    headline: 'NVIDIA CEO Discusses AI Chip Supply Constraints',
+    sentiment: 'neutral',
+    tickers: ['NVDA']
+  },
+  {
+    id: 6,
+    date: '2025-01-19',
+    time: '02:15 PM',
+    source: 'Financial Times',
+    headline: 'JPMorgan Raises Interest Rate Forecast',
+    sentiment: 'neutral',
+    tickers: ['JPM']
+  },
+  {
+    id: 7,
+    date: '2025-01-19',
+    time: '01:05 PM',
+    source: 'Reuters',
+    headline: 'Meta Platforms Faces Regulatory Scrutiny in EU',
+    sentiment: 'negative',
+    tickers: ['META']
+  },
+  {
+    id: 8,
+    date: '2025-01-19',
+    time: '11:30 AM',
+    source: 'Bloomberg',
+    headline: 'Google Announces New AI Search Features',
+    sentiment: 'positive',
+    tickers: ['GOOGL']
+  }
+];
+
 export const mockStocks = [
   {
     no: 1,
@@ -54,7 +154,8 @@ export const mockStocks = [
     shortFloat: '1.23%',
     shortRatio: 2.34,
     optionable: 'Yes',
-    shortable: 'Yes'
+    shortable: 'Yes',
+    chartData: generateChartData(144.40)
   },
   {
     no: 2,
@@ -109,7 +210,8 @@ export const mockStocks = [
     shortFloat: '3.45%',
     shortRatio: 1.89,
     optionable: 'Yes',
-    shortable: 'Yes'
+    shortable: 'Yes',
+    chartData: generateChartData(36.72)
   },
   {
     no: 3,
@@ -164,7 +266,8 @@ export const mockStocks = [
     shortFloat: '5.67%',
     shortRatio: 3.45,
     optionable: 'Yes',
-    shortable: 'Yes'
+    shortable: 'Yes',
+    chartData: generateChartData(12.33)
   },
   {
     no: 4,
@@ -219,7 +322,8 @@ export const mockStocks = [
     shortFloat: '0.89%',
     shortRatio: 1.23,
     optionable: 'Yes',
-    shortable: 'Yes'
+    shortable: 'Yes',
+    chartData: generateChartData(268.56)
   },
   {
     no: 5,
@@ -274,7 +378,8 @@ export const mockStocks = [
     shortFloat: '1.45%',
     shortRatio: 2.12,
     optionable: 'Yes',
-    shortable: 'Yes'
+    shortable: 'Yes',
+    chartData: generateChartData(181.45)
   }
 ];
 
@@ -304,10 +409,10 @@ const additionalTickers = [
 
 for (let i = 0; i < additionalTickers.length; i++) {
   const item = additionalTickers[i];
-  const randomPrice = (Math.random() * 500 + 10).toFixed(2);
+  const randomPrice = parseFloat((Math.random() * 500 + 10).toFixed(2));
   const randomChange = (Math.random() * 10 - 5).toFixed(2);
   const randomVolume = Math.floor(Math.random() * 50000000 + 1000000);
-  const randomPE = (Math.random() * 50 + 5).toFixed(2);
+  const randomPE = parseFloat((Math.random() * 50 + 5).toFixed(2));
   const randomMarketCap = (Math.random() * 3000 + 10).toFixed(2) + 'B';
   
   mockStocks.push({
@@ -318,33 +423,33 @@ for (let i = 0; i < additionalTickers.length; i++) {
     industry: item.industry,
     country: 'USA',
     marketCap: randomMarketCap,
-    pe: parseFloat(randomPE),
-    forwardPe: (parseFloat(randomPE) * 0.9).toFixed(2),
-    peg: (Math.random() * 3 + 0.5).toFixed(2),
-    ps: (Math.random() * 10 + 0.5).toFixed(2),
-    pb: (Math.random() * 50 + 1).toFixed(2),
-    pc: (Math.random() * 30 + 5).toFixed(2),
-    pfcf: (Math.random() * 40 + 5).toFixed(2),
+    pe: randomPE,
+    forwardPe: parseFloat((randomPE * 0.9).toFixed(2)),
+    peg: parseFloat((Math.random() * 3 + 0.5).toFixed(2)),
+    ps: parseFloat((Math.random() * 10 + 0.5).toFixed(2)),
+    pb: parseFloat((Math.random() * 50 + 1).toFixed(2)),
+    pc: parseFloat((Math.random() * 30 + 5).toFixed(2)),
+    pfcf: parseFloat((Math.random() * 40 + 5).toFixed(2)),
     dividendYield: Math.random() > 0.5 ? (Math.random() * 5).toFixed(2) + '%' : '-',
     payoutRatio: Math.random() > 0.5 ? (Math.random() * 100).toFixed(1) + '%' : '-',
-    eps: (Math.random() * 20 + 0.5).toFixed(2),
-    price: parseFloat(randomPrice),
+    eps: parseFloat((Math.random() * 20 + 0.5).toFixed(2)),
+    price: randomPrice,
     change: randomChange + '%',
     volume: randomVolume,
     avgVolume: (randomVolume * 1.2 / 1000000).toFixed(2) + 'M',
-    relVolume: (Math.random() * 2 + 0.5).toFixed(2),
+    relVolume: parseFloat((Math.random() * 2 + 0.5).toFixed(2)),
     perf1w: (Math.random() * 10 - 5).toFixed(2) + '%',
     perf1m: (Math.random() * 15 - 7.5).toFixed(2) + '%',
     perf3m: (Math.random() * 25 - 12.5).toFixed(2) + '%',
     perf6m: (Math.random() * 40 - 20).toFixed(2) + '%',
     perfYtd: (Math.random() * 30 - 15).toFixed(2) + '%',
     perf1y: (Math.random() * 50 - 25).toFixed(2) + '%',
-    beta: (Math.random() * 2 + 0.5).toFixed(2),
-    atr: (Math.random() * 5 + 1).toFixed(2),
+    beta: parseFloat((Math.random() * 2 + 0.5).toFixed(2)),
+    atr: parseFloat((Math.random() * 5 + 1).toFixed(2)),
     volatility: (Math.random() * 3 + 1).toFixed(2) + '% ' + (Math.random() * 4 + 1.5).toFixed(2) + '%',
-    rsi: (Math.random() * 80 + 20).toFixed(2),
-    recom: (Math.random() * 4 + 1).toFixed(1),
-    targetPrice: (parseFloat(randomPrice) * (1 + Math.random() * 0.3)).toFixed(2),
+    rsi: parseFloat((Math.random() * 80 + 20).toFixed(2)),
+    recom: parseFloat((Math.random() * 4 + 1).toFixed(1)),
+    targetPrice: parseFloat((randomPrice * (1 + Math.random() * 0.3)).toFixed(2)),
     insiderOwn: (Math.random() * 10).toFixed(2) + '%',
     insiderTrans: (Math.random() * 10 - 5).toFixed(2) + '%',
     instOwn: (Math.random() * 80 + 10).toFixed(2) + '%',
@@ -352,18 +457,19 @@ for (let i = 0; i < additionalTickers.length; i++) {
     roa: (Math.random() * 30).toFixed(2) + '%',
     roe: (Math.random() * 150).toFixed(2) + '%',
     roi: (Math.random() * 50).toFixed(2) + '%',
-    currRatio: (Math.random() * 3 + 0.5).toFixed(2),
-    quickRatio: (Math.random() * 2 + 0.3).toFixed(2),
-    ltDebtEq: (Math.random() * 6).toFixed(2),
-    debtEq: (Math.random() * 7).toFixed(2),
+    currRatio: parseFloat((Math.random() * 3 + 0.5).toFixed(2)),
+    quickRatio: parseFloat((Math.random() * 2 + 0.3).toFixed(2)),
+    ltDebtEq: parseFloat((Math.random() * 6).toFixed(2)),
+    debtEq: parseFloat((Math.random() * 7).toFixed(2)),
     grossMargin: (Math.random() * 70 + 10).toFixed(2) + '%',
     operMargin: (Math.random() * 40 + 5).toFixed(2) + '%',
     profitMargin: (Math.random() * 30 + 2).toFixed(2) + '%',
     earningsDate: 'Feb ' + Math.floor(Math.random() * 28 + 1) + ' AMC',
     shortFloat: (Math.random() * 15).toFixed(2) + '%',
-    shortRatio: (Math.random() * 5 + 0.5).toFixed(2),
+    shortRatio: parseFloat((Math.random() * 5 + 0.5).toFixed(2)),
     optionable: 'Yes',
-    shortable: 'Yes'
+    shortable: 'Yes',
+    chartData: generateChartData(randomPrice)
   });
 }
 
