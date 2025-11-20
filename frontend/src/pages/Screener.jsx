@@ -7,6 +7,7 @@ import { useTheme } from '../context/ThemeContext';
 import '../styles/Screener.css';
 
 const Screener = () => {
+  const { isDark, toggleTheme } = useTheme();
   const [stocks, setStocks] = useState(mockStocks);
   const [filteredStocks, setFilteredStocks] = useState(mockStocks);
   const [currentPage, setCurrentPage] = useState(1);
