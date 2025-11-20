@@ -1,0 +1,106 @@
+.filter-panel {
+  background-color: #fff;
+  border-bottom: 1px solid #d0d0d0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Filter Tabs */
+.filter-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 20px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.filter-tabs button {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 11px;
+  color: #000;
+  border-top: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.filter-tabs button:hover {
+  background-color: #e8e8e8;
+}
+
+.filter-tabs .tab-active {
+  background-color: #fff;
+  border-top: 2px solid #0088cc;
+  font-weight: bold;
+}
+
+/* Filter Content */
+.filter-content {
+  padding: 16px 20px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-item label {
+  font-size: 11px;
+  color: #333;
+  font-weight: normal;
+}
+
+.filter-item select {
+  padding: 4px 6px;
+  border: 1px solid #aaa;
+  border-radius: 2px;
+  background-color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.filter-item select:hover {
+  border-color: #0088cc;
+}
+
+.filter-item select:focus {
+  outline: none;
+  border-color: #0088cc;
+  box-shadow: 0 0 2px rgba(0, 136, 204, 0.3);
+}
+
+.filter-separator {
+  font-weight: bold;
+  font-size: 12px;
+  color: #000;
+  margin: 16px 0 12px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .filter-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .filter-tabs {
+    overflow-x: auto;
+  }
+}
