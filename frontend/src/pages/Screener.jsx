@@ -135,6 +135,9 @@ const Screener = () => {
             <span className="elite-badge">Elite 50% OFF</span>
             <span>Act now – get top investing tools</span>
             <a href="#" className="register-link">Register Now!</a>
+            <button onClick={toggleTheme} className="theme-toggle" title="Toggle theme">
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
           </div>
         </div>
       </div>
