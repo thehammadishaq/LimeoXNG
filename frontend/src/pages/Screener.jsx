@@ -257,6 +257,48 @@ const Screener = () => {
         >
           Charts
         </button>
+        <button 
+          className={selectedView === 'tickers' ? 'tab-active' : ''}
+          onClick={() => setSelectedView('tickers')}
+        >
+          Tickers
+        </button>
+        <button 
+          className={selectedView === 'basic' ? 'tab-active' : ''}
+          onClick={() => setSelectedView('basic')}
+        >
+          Basic
+        </button>
+        <button 
+          className={selectedView === 'ta' ? 'tab-active' : ''}
+          onClick={() => setSelectedView('ta')}
+        >
+          TA
+        </button>
+        <button 
+          className={selectedView === 'news' ? 'tab-active' : ''}
+          onClick={() => setSelectedView('news')}
+        >
+          News
+        </button>
+        <button 
+          className={selectedView === 'snapshot' ? 'tab-active' : ''}
+          onClick={() => setSelectedView('snapshot')}
+        >
+          Snapshot
+        </button>
+        <button 
+          className={selectedView === 'maps' ? 'tab-active' : ''}
+          onClick={() => setSelectedView('maps')}
+        >
+          Maps
+        </button>
+        <button 
+          className={selectedView === 'stats' ? 'tab-active' : ''}
+          onClick={() => setSelectedView('stats')}
+        >
+          Stats
+        </button>
       </div>
 
       {/* Results Info */}
