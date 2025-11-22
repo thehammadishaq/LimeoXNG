@@ -3,7 +3,194 @@
   padding: 0 20px;
   max-width: 1400px;
   margin: 0 auto;
-  overflow-x: auto;
+  /* Force scrollbar to always be visible - use 'scroll' instead of 'auto' */
+  overflow-x: scroll !important;
+  overflow-y: hidden !important;
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  /* Force scrollbar to always be visible */
+  overflow: -moz-scrollbars-horizontal;
+}
+
+/* Firefox Dark Theme */
+.dark-theme .table-container,
+html.dark .table-container,
+[data-theme="dark"] .table-container {
+  scrollbar-color: #4a9eff #222 !important;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) - Advanced Modern Scrollbar */
+/* Force scrollbar to be visible and styled - MUST be after .table-container base rule */
+.table-container {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Force scrollbar to always be visible, even on large screens */
+.table-container::-webkit-scrollbar {
+  height: 14px !important;
+  width: 14px !important;
+  display: block !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  /* Force visibility on all screen sizes */
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: linear-gradient(
+    to right,
+    #f5f5f5 0%,
+    #fafafa 50%,
+    #f5f5f5 100%
+  ) !important;
+  border-radius: 10px !important;
+  border: 1px solid #e8e8e8 !important;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1) !important;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to right,
+    #0088cc 0%,
+    #0066aa 50%,
+    #0088cc 100%
+  ) !important;
+  border-radius: 10px !important;
+  border: 2px solid #f5f5f5 !important;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  -webkit-box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-height: 30px !important;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to right,
+    #0066aa 0%,
+    #0088cc 50%,
+    #0066aa 100%
+  ) !important;
+  box-shadow: 
+    0 3px 6px rgba(0, 136, 204, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  -webkit-box-shadow: 
+    0 3px 6px rgba(0, 136, 204, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.table-container::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(
+    to right,
+    #0088cc 0%,
+    #005588 50%,
+    #0088cc 100%
+  ) !important;
+  box-shadow: 
+    0 1px 3px rgba(0, 136, 204, 0.5),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  -webkit-box-shadow: 
+    0 1px 3px rgba(0, 136, 204, 0.5),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Dark theme - Advanced Modern Scrollbar - Multiple selectors for maximum compatibility */
+html.dark-theme .table-container::-webkit-scrollbar,
+.dark-theme .table-container::-webkit-scrollbar,
+html.dark .table-container::-webkit-scrollbar,
+[data-theme="dark"] .table-container::-webkit-scrollbar {
+  height: 14px !important;
+  width: 14px !important;
+  display: block !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  /* Force visibility on all screen sizes */
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+html.dark-theme .table-container::-webkit-scrollbar-track,
+.dark-theme .table-container::-webkit-scrollbar-track,
+html.dark .table-container::-webkit-scrollbar-track,
+[data-theme="dark"] .table-container::-webkit-scrollbar-track {
+  background: linear-gradient(
+    to right,
+    #222 0%,
+    #2a2a2a 50%,
+    #222 100%
+  ) !important;
+  border: 1px solid #404040 !important;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5) !important;
+  -webkit-box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 10px !important;
+  /* Force visibility */
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+html.dark-theme .table-container::-webkit-scrollbar-thumb,
+.dark-theme .table-container::-webkit-scrollbar-thumb,
+html.dark .table-container::-webkit-scrollbar-thumb,
+[data-theme="dark"] .table-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to right,
+    #4a9eff 0%,
+    #6bb3ff 50%,
+    #4a9eff 100%
+  ) !important;
+  border: 2px solid #222 !important;
+  box-shadow: 
+    0 2px 6px rgba(74, 158, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  -webkit-box-shadow: 
+    0 2px 6px rgba(74, 158, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px !important;
+  min-height: 30px !important;
+  /* Force visibility */
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+html.dark-theme .table-container::-webkit-scrollbar-thumb:hover,
+.dark-theme .table-container::-webkit-scrollbar-thumb:hover,
+html.dark .table-container::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .table-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to right,
+    #6bb3ff 0%,
+    #4a9eff 50%,
+    #6bb3ff 100%
+  ) !important;
+  box-shadow: 
+    0 4px 8px rgba(74, 158, 255, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  -webkit-box-shadow: 
+    0 4px 8px rgba(74, 158, 255, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+html.dark-theme .table-container::-webkit-scrollbar-thumb:active,
+.dark-theme .table-container::-webkit-scrollbar-thumb:active,
+html.dark .table-container::-webkit-scrollbar-thumb:active,
+[data-theme="dark"] .table-container::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(
+    to right,
+    #4a9eff 0%,
+    #3d7fc7 50%,
+    #4a9eff 100%
+  ) !important;
+  box-shadow: 
+    0 2px 4px rgba(74, 158, 255, 0.7),
+    inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+  -webkit-box-shadow: 
+    0 2px 4px rgba(74, 158, 255, 0.7),
+    inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Stock Table */
@@ -21,16 +208,11 @@
 }
 
 .stock-table th {
-  padding: 8px 6px;
+  padding: 2px 6px;
   text-align: left;
   font-weight: bold;
   color: var(--text-primary);
   white-space: nowrap;
-  border-right: 1px solid var(--border-light);
-}
-
-.stock-table th:last-child {
-  border-right: none;
 }
 
 .stock-table tbody tr {
@@ -47,28 +229,107 @@
 }
 
 .stock-table td {
-  padding: 6px;
+  padding: 2px 6px;
   text-align: left;
   white-space: nowrap;
-  border-right: 1px solid var(--border-light);
 }
 
-.stock-table td:last-child {
-  border-right: none;
+/* Skeleton loading styles */
+.skeleton-box {
+  display: inline-block !important;
+  border-radius: 3px;
+  vertical-align: middle;
+  min-height: 14px !important;
+  min-width: 24px !important;
+  position: relative;
+  overflow: hidden;
+  /* Stronger contrast so skeletons are clearly visible */
+  background-color: #d1d5db !important;
+  background: linear-gradient(
+    90deg,
+    #d1d5db 0%,
+    #e5e7eb 50%,
+    #d1d5db 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: skeleton-loading 1.2s ease-in-out infinite !important;
+}
+
+/* Dark mode skeleton */
+.dark .skeleton-box,
+html.dark .skeleton-box,
+[data-theme="dark"] .skeleton-box {
+  background-color: #374151 !important;
+  background: linear-gradient(
+    90deg,
+    #374151 0%,
+    #4b5563 50%,
+    #374151 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: skeleton-loading 1.5s ease-in-out infinite !important;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .stock-table a {
-  color: var(--link-color);
+  color: var(--text-primary);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .stock-table a:hover {
   text-decoration: underline;
-  color: var(--link-hover);
+  color: var(--text-primary);
 }
 
 .ticker-link {
+  font-weight: bold;
+  color: var(--link-color) !important;
+}
+
+.ticker-link:hover {
+  color: var(--link-hover) !important;
+}
+
+/* P/E, Price, and Change columns should have green/red colors */
+.pe-link,
+.price-link {
+  color: var(--text-primary);
+}
+
+.positive-pe,
+.positive-pe a,
+.positive-pe .pe-link {
+  color: var(--positive) !important;
+  font-weight: bold;
+}
+
+.negative-pe,
+.negative-pe a,
+.negative-pe .pe-link {
+  color: var(--negative) !important;
+  font-weight: bold;
+}
+
+.positive-price,
+.positive-price a,
+.positive-price .price-link {
+  color: var(--positive) !important;
+  font-weight: bold;
+}
+
+.negative-price,
+.negative-price a,
+.negative-price .price-link {
+  color: var(--negative) !important;
   font-weight: bold;
 }
 
@@ -82,13 +343,15 @@
   font-weight: bold;
 }
 
-.positive-change {
-  color: var(--positive);
+.positive-change,
+.positive-change a {
+  color: var(--positive) !important;
   font-weight: bold;
 }
 
-.negative-change {
-  color: var(--negative);
+.negative-change,
+.negative-change a {
+  color: var(--negative) !important;
   font-weight: bold;
 }
 
@@ -221,38 +484,43 @@
 }
 
 /* News View */
-.news-container {
-  padding: 16px;
+/* News Table - Same style as stock table */
+.news-table {
+  /* Inherits all stock-table styles */
 }
 
-.news-item {
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 12px;
-  margin-bottom: 12px;
-  background-color: var(--bg-tertiary);
-  transition: all 0.2s;
+.news-date-cell {
+  display: block;
+  line-height: 1.4;
 }
 
-.news-item:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+.news-date-cell .news-date {
+  display: block;
 }
 
-.news-header {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 10px;
+.news-date-cell .news-time {
+  display: block;
 }
 
 .news-date {
-  color: var(--text-tertiary);
+  color: var(--text-primary);
+  font-size: 11px;
 }
 
-.news-source {
+.news-time {
   color: var(--text-secondary);
-  font-weight: bold;
+  font-size: 10px;
+}
+
+.news-source-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.news-source-link:hover {
+  color: var(--link-color);
+  text-decoration: underline;
 }
 
 .news-sentiment {
@@ -261,6 +529,7 @@
   font-weight: bold;
   text-transform: uppercase;
   font-size: 9px;
+  display: inline-block;
 }
 
 .sentiment-positive {
@@ -278,40 +547,15 @@
   color: var(--text-secondary);
 }
 
-.news-headline {
-  margin-bottom: 8px;
-}
-
-.news-headline a {
+.news-headline-link {
   color: var(--text-primary);
   text-decoration: none;
-  font-size: 13px;
   font-weight: 500;
 }
 
-.news-headline a:hover {
+.news-headline-link:hover {
   color: var(--link-color);
   text-decoration: underline;
-}
-
-.news-tickers {
-  display: flex;
-  gap: 6px;
-}
-
-.news-ticker {
-  background-color: var(--btn-bg);
-  color: var(--link-color);
-  padding: 2px 6px;
-  border-radius: 3px;
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: bold;
-}
-
-.news-ticker:hover {
-  background-color: var(--link-color);
-  color: #fff;
 }
 
 /* Snapshot Grid */
@@ -431,6 +675,9 @@
 @media (max-width: 768px) {
   .table-container {
     padding: 0 10px;
+    /* Ensure scrollbar remains visible on mobile too */
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
   }
 
   .stock-table {
@@ -452,3 +699,6 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Scrollbar styles are now handled by Tailwind CSS utilities in index.css */
+

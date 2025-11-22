@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+    background-color: var(--bg-primary, #fff);
+    transition: background-color 0.3s;
+}
+
 body {
     margin: 0;
     font-family:
@@ -10,6 +15,13 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-primary, #fff);
+    transition: background-color 0.3s;
+}
+
+.dark-theme html,
+.dark-theme body {
+    background-color: var(--bg-primary);
 }
 
 code {
@@ -112,4 +124,301 @@ code {
         border-top-color: inherit;
         border-bottom-color: inherit;
     }
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR - OUTSIDE @layer FOR MAXIMUM SPECIFICITY
+   This ensures scrollbar styles work regardless of device toolbar state
+   Handles both OVERLAY and CLASSIC scrollbars
+   ============================================ */
+
+/* Force scrollbar to always be visible and styled */
+div.scrollbar-custom,
+.scrollbar-custom,
+div.table-container.scrollbar-custom,
+.table-container.scrollbar-custom {
+    /* Force scrollbar visibility - works for both overlay and classic */
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #6b7280 #f5f5f5 !important;
+    /* Prevent browser from auto-hiding scrollbar */
+    -ms-overflow-style: scroll !important;
+}
+
+/* Custom Scrollbar - Light Theme - Force on ALL screen sizes and device modes */
+/* Works for both OVERLAY and CLASSIC scrollbars */
+div.scrollbar-custom::-webkit-scrollbar,
+.scrollbar-custom::-webkit-scrollbar,
+div.table-container.scrollbar-custom::-webkit-scrollbar,
+.table-container.scrollbar-custom::-webkit-scrollbar,
+div.scrollbar-custom *::-webkit-scrollbar,
+.scrollbar-custom *::-webkit-scrollbar {
+    height: 14px !important;
+    width: 14px !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background: transparent !important;
+    display: block !important;
+    /* Force visibility even in overlay mode */
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Remove arrow buttons from scrollbar - All directions */
+div.scrollbar-custom::-webkit-scrollbar-button,
+.scrollbar-custom::-webkit-scrollbar-button,
+div.table-container.scrollbar-custom::-webkit-scrollbar-button,
+.table-container.scrollbar-custom::-webkit-scrollbar-button,
+div.scrollbar-custom *::-webkit-scrollbar-button,
+.scrollbar-custom *::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background: transparent !important;
+}
+
+/* Remove arrow buttons - Specific directions */
+div.scrollbar-custom::-webkit-scrollbar-button:start:decrement,
+div.scrollbar-custom::-webkit-scrollbar-button:end:increment,
+.scrollbar-custom::-webkit-scrollbar-button:start:decrement,
+.scrollbar-custom::-webkit-scrollbar-button:end:increment,
+div.table-container.scrollbar-custom::-webkit-scrollbar-button:start:decrement,
+div.table-container.scrollbar-custom::-webkit-scrollbar-button:end:increment,
+.table-container.scrollbar-custom::-webkit-scrollbar-button:start:decrement,
+.table-container.scrollbar-custom::-webkit-scrollbar-button:end:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Remove corner between scrollbars */
+div.scrollbar-custom::-webkit-scrollbar-corner,
+.scrollbar-custom::-webkit-scrollbar-corner,
+div.table-container.scrollbar-custom::-webkit-scrollbar-corner,
+.table-container.scrollbar-custom::-webkit-scrollbar-corner {
+    display: none !important;
+    background: transparent !important;
+}
+
+div.scrollbar-custom::-webkit-scrollbar-track,
+.scrollbar-custom::-webkit-scrollbar-track,
+div.table-container.scrollbar-custom::-webkit-scrollbar-track,
+.table-container.scrollbar-custom::-webkit-scrollbar-track,
+div.scrollbar-custom *::-webkit-scrollbar-track,
+.scrollbar-custom *::-webkit-scrollbar-track {
+    background: linear-gradient(to right, #f5f5f5 0%, #fafafa 50%, #f5f5f5 100%) !important;
+    border-radius: 10px !important;
+    border: 1px solid #e8e8e8 !important;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1) !important;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1) !important;
+    /* Force visibility */
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+div.scrollbar-custom::-webkit-scrollbar-thumb,
+.scrollbar-custom::-webkit-scrollbar-thumb,
+div.table-container.scrollbar-custom::-webkit-scrollbar-thumb,
+.table-container.scrollbar-custom::-webkit-scrollbar-thumb,
+div.scrollbar-custom *::-webkit-scrollbar-thumb,
+.scrollbar-custom *::-webkit-scrollbar-thumb {
+    background: linear-gradient(to right, #6b7280 0%, #4b5563 50%, #6b7280 100%) !important;
+    border-radius: 10px !important;
+    border: 2px solid #f5f5f5 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    min-height: 30px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    /* Force visibility even in overlay mode */
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+div.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+div.table-container.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+.table-container.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+div.scrollbar-custom *::-webkit-scrollbar-thumb:hover,
+.scrollbar-custom *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to right, #4b5563 0%, #6b7280 50%, #4b5563 100%) !important;
+    box-shadow: 0 3px 6px rgba(107, 114, 128, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    -webkit-box-shadow: 0 3px 6px rgba(107, 114, 128, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+div.scrollbar-custom::-webkit-scrollbar-thumb:active,
+.scrollbar-custom::-webkit-scrollbar-thumb:active,
+div.table-container.scrollbar-custom::-webkit-scrollbar-thumb:active,
+.table-container.scrollbar-custom::-webkit-scrollbar-thumb:active,
+div.scrollbar-custom *::-webkit-scrollbar-thumb:active,
+.scrollbar-custom *::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(to right, #6b7280 0%, #374151 50%, #6b7280 100%) !important;
+    box-shadow: 0 1px 3px rgba(107, 114, 128, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    -webkit-box-shadow: 0 1px 3px rgba(107, 114, 128, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Dark Theme - Force scrollbar visibility */
+html.dark-theme div.scrollbar-custom,
+html.dark-theme .scrollbar-custom,
+html.dark-theme div.table-container.scrollbar-custom,
+html.dark-theme .table-container.scrollbar-custom,
+.dark-theme div.scrollbar-custom,
+.dark-theme .scrollbar-custom,
+.dark-theme div.table-container.scrollbar-custom,
+.dark-theme .table-container.scrollbar-custom {
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #9ca3af #222 !important;
+    -ms-overflow-style: scroll !important;
+}
+
+/* Custom Scrollbar - Dark Theme - Force on ALL screen sizes and device modes */
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar,
+html.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar,
+html.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar,
+.dark-theme .scrollbar-custom::-webkit-scrollbar,
+.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar,
+.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar,
+html.dark-theme div.scrollbar-custom *::-webkit-scrollbar,
+html.dark-theme .scrollbar-custom *::-webkit-scrollbar,
+.dark-theme div.scrollbar-custom *::-webkit-scrollbar,
+.dark-theme .scrollbar-custom *::-webkit-scrollbar {
+    height: 14px !important;
+    width: 14px !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background: transparent !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Remove arrow buttons from scrollbar - Dark Theme - All directions */
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar-button,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar-button,
+html.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-button,
+html.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-button,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar-button,
+.dark-theme .scrollbar-custom::-webkit-scrollbar-button,
+.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-button,
+.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-button,
+html.dark-theme div.scrollbar-custom *::-webkit-scrollbar-button,
+html.dark-theme .scrollbar-custom *::-webkit-scrollbar-button,
+.dark-theme div.scrollbar-custom *::-webkit-scrollbar-button,
+.dark-theme .scrollbar-custom *::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background: transparent !important;
+}
+
+/* Remove arrow buttons - Dark Theme - Specific directions */
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar-button:start:decrement,
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar-button:end:increment,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar-button:start:decrement,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar-button:end:increment,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar-button:start:decrement,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar-button:end:increment,
+.dark-theme .scrollbar-custom::-webkit-scrollbar-button:start:decrement,
+.dark-theme .scrollbar-custom::-webkit-scrollbar-button:end:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Remove corner between scrollbars - Dark Theme */
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar-corner,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar-corner,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar-corner,
+.dark-theme .scrollbar-custom::-webkit-scrollbar-corner {
+    display: none !important;
+    background: transparent !important;
+}
+
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar-track,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar-track,
+html.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-track,
+html.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-track,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar-track,
+.dark-theme .scrollbar-custom::-webkit-scrollbar-track,
+.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-track,
+.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-track,
+html.dark-theme div.scrollbar-custom *::-webkit-scrollbar-track,
+html.dark-theme .scrollbar-custom *::-webkit-scrollbar-track,
+.dark-theme div.scrollbar-custom *::-webkit-scrollbar-track,
+.dark-theme .scrollbar-custom *::-webkit-scrollbar-track {
+    background: linear-gradient(to right, #222 0%, #2a2a2a 50%, #222 100%) !important;
+    border: 1px solid #404040 !important;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5) !important;
+    -webkit-box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5) !important;
+    border-radius: 10px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar-thumb,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar-thumb,
+html.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-thumb,
+html.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-thumb,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar-thumb,
+.dark-theme .scrollbar-custom::-webkit-scrollbar-thumb,
+.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-thumb,
+.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-thumb,
+html.dark-theme div.scrollbar-custom *::-webkit-scrollbar-thumb,
+html.dark-theme .scrollbar-custom *::-webkit-scrollbar-thumb,
+.dark-theme div.scrollbar-custom *::-webkit-scrollbar-thumb,
+.dark-theme .scrollbar-custom *::-webkit-scrollbar-thumb {
+    background: linear-gradient(to right, #9ca3af 0%, #6b7280 50%, #9ca3af 100%) !important;
+    border: 2px solid #222 !important;
+    box-shadow: 0 2px 6px rgba(156, 163, 175, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    -webkit-box-shadow: 0 2px 6px rgba(156, 163, 175, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    min-height: 30px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar-thumb:hover,
+html.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+html.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+.dark-theme .scrollbar-custom::-webkit-scrollbar-thumb:hover,
+.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-thumb:hover,
+html.dark-theme div.scrollbar-custom *::-webkit-scrollbar-thumb:hover,
+html.dark-theme .scrollbar-custom *::-webkit-scrollbar-thumb:hover,
+.dark-theme div.scrollbar-custom *::-webkit-scrollbar-thumb:hover,
+.dark-theme .scrollbar-custom *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to right, #6b7280 0%, #9ca3af 50%, #6b7280 100%) !important;
+    box-shadow: 0 4px 8px rgba(156, 163, 175, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    -webkit-box-shadow: 0 4px 8px rgba(156, 163, 175, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+html.dark-theme div.scrollbar-custom::-webkit-scrollbar-thumb:active,
+html.dark-theme .scrollbar-custom::-webkit-scrollbar-thumb:active,
+html.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-thumb:active,
+html.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-thumb:active,
+.dark-theme div.scrollbar-custom::-webkit-scrollbar-thumb:active,
+.dark-theme .scrollbar-custom::-webkit-scrollbar-thumb:active,
+.dark-theme div.table-container.scrollbar-custom::-webkit-scrollbar-thumb:active,
+.dark-theme .table-container.scrollbar-custom::-webkit-scrollbar-thumb:active,
+html.dark-theme div.scrollbar-custom *::-webkit-scrollbar-thumb:active,
+html.dark-theme .scrollbar-custom *::-webkit-scrollbar-thumb:active,
+.dark-theme div.scrollbar-custom *::-webkit-scrollbar-thumb:active,
+.dark-theme .scrollbar-custom *::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(to right, #9ca3af 0%, #4b5563 50%, #9ca3af 100%) !important;
+    box-shadow: 0 2px 4px rgba(156, 163, 175, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    -webkit-box-shadow: 0 2px 4px rgba(156, 163, 175, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
 }
