@@ -8,9 +8,15 @@ import { useTheme } from '../context/ThemeContext';
 import { fetchScreenerData, transformStockData } from '../services/api';
 import '../styles/Screener.css';
 
-// Default stock symbols to fetch (only 5)
+// Default stock symbols to fetch
 const DEFAULT_STOCK_SYMBOLS = [
-  'NVDA', 'AAPL', 'MSFT', 'GOOGL', 'AMZN'
+  'NVDA',
+  'AAPL',
+  'MSFT',
+  'GOOGL',
+  'AMZN',
+  'CIFR',
+  'IREN',
 ];
 
 const Screener = () => {
@@ -31,6 +37,10 @@ const Screener = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [financialsLoaded, setFinancialsLoaded] = useState(false);
+  const [portfolioMessage, setPortfolioMessage] = useState<string | null>(null);
+  const [showPortfolioModal, setShowPortfolioModal] = useState(false);
+  const [portfolioName, setPortfolioName] = useState('');
+  const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
 
   // Fetch data from API
   const fetchData = async (
@@ -263,6 +273,80 @@ const Screener = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Open portfolio modal pre-populated with current filtered stocks
+  const handleOpenPortfolioModal = () => {
+    try {
+      if (!filteredStocks || filteredStocks.length === 0) {
+        setPortfolioMessage('No stocks to save. Adjust filters or load data first.');
+        return;
+      }
+
+      const defaultName = `Portfolio ${new Date().toLocaleDateString()}`;
+      setPortfolioName(defaultName);
+      setSelectedTickers(filteredStocks.map((s) => s.ticker));
+      setShowPortfolioModal(true);
+      setPortfolioMessage(null);
+    } catch (e) {
+      console.error('❌ Error preparing portfolio modal:', e);
+      setPortfolioMessage('Failed to open portfolio modal. Check console for details.');
+    }
+  };
+
+  const handleToggleTicker = (ticker: string) => {
+    setSelectedTickers((prev) =>
+      prev.includes(ticker) ? prev.filter((t) => t !== ticker) : [...prev, ticker]
+    );
+  };
+
+  const handleSelectAllTickers = () => {
+    setSelectedTickers(filteredStocks.map((s) => s.ticker));
+  };
+
+  const handleClearAllTickers = () => {
+    setSelectedTickers([]);
+  };
+
+  // Save portfolio to localStorage from modal selection
+  const handleSavePortfolio = () => {
+    try {
+      if (!filteredStocks || filteredStocks.length === 0) {
+        setPortfolioMessage('No stocks to save. Adjust filters or load data first.');
+        setShowPortfolioModal(false);
+        return;
+      }
+
+      const trimmedName = portfolioName.trim() || `Portfolio ${new Date().toLocaleDateString()}`;
+      const selectedStocks = filteredStocks.filter((s) => selectedTickers.includes(s.ticker));
+
+      if (selectedStocks.length === 0) {
+        setPortfolioMessage('Select at least one company to create a portfolio.');
+        return;
+      }
+
+      const symbols = selectedStocks.map((s) => s.ticker);
+      const portfolio = {
+        id: Date.now(),
+        name: trimmedName,
+        createdAt: new Date().toISOString(),
+        symbols,
+        stocks: selectedStocks,
+      };
+
+      const existingRaw = localStorage.getItem('limeo_portfolios');
+      const existing = existingRaw ? JSON.parse(existingRaw) : [];
+      existing.push(portfolio);
+      localStorage.setItem('limeo_portfolios', JSON.stringify(existing));
+
+      setPortfolioMessage(`Portfolio "${trimmedName}" created with ${symbols.length} stocks.`);
+      setShowPortfolioModal(false);
+      // Auto-clear message after a few seconds
+      setTimeout(() => setPortfolioMessage(null), 5000);
+    } catch (e) {
+      console.error('❌ Error creating portfolio:', e);
+      setPortfolioMessage('Failed to create portfolio. Check console for details.');
+    }
+  };
+
   return (
     <div className="screener-container">
       {/* Header */}
@@ -474,6 +558,9 @@ const Screener = () => {
           {filteredStocks.length > 0 ? `Showing ${filteredStocks.length} stocks` : 'No stocks to display'}
           {loading && <span style={{ marginLeft: '10px', color: 'var(--link-color)' }}>Loading...</span>}
           {error && <span style={{ marginLeft: '10px', color: 'var(--negative)' }}>{error}</span>}
+          {portfolioMessage && (
+            <span style={{ marginLeft: '10px', color: 'var(--link-color)' }}>{portfolioMessage}</span>
+          )}
           {lastRefresh && !loading && (
             <span style={{ marginLeft: '10px', fontSize: '10px', color: 'var(--text-secondary)' }}>
               Last updated: {lastRefresh.toLocaleTimeString()}
@@ -481,7 +568,15 @@ const Screener = () => {
           )}
         </div>
         <div className="results-actions">
-          <a href="#">save as portfolio</a> | 
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              handleOpenPortfolioModal();
+            }}
+          >
+            Create portfolio
+          </a> | 
           <a href="#"> create alert</a>
           <span className="separator">|</span>
           <span>
@@ -542,6 +637,78 @@ const Screener = () => {
           ) : (
             <p>No stocks available. Please check your connection and try again.</p>
           )}
+        </div>
+      )}
+
+      {/* Create Portfolio Modal */}
+      {showPortfolioModal && (
+        <div className="modal-overlay" onClick={() => setShowPortfolioModal(false)}>
+          <div
+            className="portfolio-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="portfolio-modal-header">
+              <h3>Create Portfolio</h3>
+              <button
+                className="portfolio-modal-close"
+                onClick={() => setShowPortfolioModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="portfolio-modal-body">
+              <div className="portfolio-name-row">
+                <label htmlFor="portfolio-name">Name</label>
+                <input
+                  id="portfolio-name"
+                  type="text"
+                  value={portfolioName}
+                  onChange={(e) => setPortfolioName(e.target.value)}
+                  placeholder="My Portfolio"
+                />
+              </div>
+              <div className="portfolio-summary-row">
+                <span>
+                  Selected {selectedTickers.length} of {filteredStocks.length} companies
+                </span>
+                <div className="portfolio-summary-actions">
+                  <button onClick={handleSelectAllTickers}>Select all</button>
+                  <button onClick={handleClearAllTickers}>Clear</button>
+                </div>
+              </div>
+              <div className="portfolio-list">
+                {filteredStocks.map((stock) => (
+                  <label
+                    key={stock.ticker}
+                    className="portfolio-row"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedTickers.includes(stock.ticker)}
+                      onChange={() => handleToggleTicker(stock.ticker)}
+                    />
+                    <span className="portfolio-ticker">{stock.ticker}</span>
+                    <span className="portfolio-company">{stock.company}</span>
+                    <span className="portfolio-sector">{stock.sector}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="portfolio-modal-footer">
+              <button
+                className="btn-secondary"
+                onClick={() => setShowPortfolioModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-primary"
+                onClick={handleSavePortfolio}
+              >
+                Save portfolio
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

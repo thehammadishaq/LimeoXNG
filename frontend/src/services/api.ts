@@ -82,6 +82,17 @@ export interface StockFinancials {
   symbol?: string;
 }
 
+// Stock candles (OHLCV) type for chart integration
+export interface StockCandle {
+  // UNIX timestamp in seconds (Finnhub format, compatible with lightweight-charts UTCTimestamp)
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
 export interface ScreenerResponse {
   stocks: StockData[];
   total: number;
@@ -109,7 +120,7 @@ export interface SingleStockResponse {
 /**
  * Fetch stock profile from Backend API (Backend → Finnhub)
  */
-async function fetchStockProfile(ticker: string): Promise<StockProfile | null> {
+export async function fetchStockProfile(ticker: string): Promise<StockProfile | null> {
   try {
     const url = `${BACKEND_API_BASE_URL}/finnhub/profile/${ticker}?save_to_db=true`;
     console.log(`🌐 Fetching profile for ${ticker} via Backend API`);
@@ -227,6 +238,124 @@ export async function fetchStockFinancials(ticker: string): Promise<StockFinanci
       console.error('💡 Network error - make sure backend server is running on', BACKEND_API_BASE_URL);
     }
     return null;
+  }
+}
+
+/**
+ * Fetch stock candles (OHLCV) from Backend API (Backend → Finnhub /stock/candle)
+ * Used by the profile page chart.
+ */
+export async function fetchStockCandles(
+  ticker: string,
+  resolution: string,
+  from: number,
+  to: number,
+  saveToDb: boolean = true
+): Promise<StockCandle[]> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url =
+      `${BACKEND_API_BASE_URL}/finnhub/stock-candles/${tickerUpper}` +
+      `?resolution=${encodeURIComponent(resolution)}` +
+      `&from=${from}` +
+      `&to=${to}` +
+      `&save_to_db=${saveToDb}`;
+
+    console.log(`🌐 Fetching stock candles for ${tickerUpper} via Backend API`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(
+      `📡 Backend stock-candles response status for ${tickerUpper}:`,
+      response.status,
+      response.statusText
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Backend stock-candles API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return [];
+    }
+
+    const backendResponse: any = await response.json();
+    console.log(`📦 Backend stock-candles raw response for ${tickerUpper}:`, backendResponse);
+
+    // Backend returns: { ticker, resolution, from, to, data: { stock_candles: {...}, _metadata: {...} }, ... }
+    const allData = backendResponse.data || {};
+    const candlesPayload: any = allData.stock_candles || allData;
+
+    if (!candlesPayload || typeof candlesPayload !== 'object') {
+      console.warn(`⚠️ No stock_candles payload found in backend response for ${tickerUpper}`);
+      console.warn('   Available keys on data:', Object.keys(allData || {}));
+      return [];
+    }
+
+    if (candlesPayload.s && candlesPayload.s !== 'ok') {
+      console.warn(
+        `⚠️ Finnhub returned non-ok status for ${tickerUpper} candles:`,
+        candlesPayload.s
+      );
+      return [];
+    }
+
+    const c: number[] = candlesPayload.c || [];
+    const h: number[] = candlesPayload.h || [];
+    const l: number[] = candlesPayload.l || [];
+    const o: number[] = candlesPayload.o || [];
+    const t: number[] = candlesPayload.t || [];
+    const v: number[] = candlesPayload.v || [];
+
+    if (!Array.isArray(t) || t.length === 0) {
+      console.warn(`⚠️ Empty candles array for ${tickerUpper}`);
+      return [];
+    }
+
+    const len = t.length;
+    const candles: StockCandle[] = [];
+
+    for (let i = 0; i < len; i++) {
+      const open = o[i];
+      const high = h[i];
+      const low = l[i];
+      const close = c[i];
+      const time = t[i];
+
+      if (
+        open === undefined ||
+        high === undefined ||
+        low === undefined ||
+        close === undefined ||
+        time === undefined
+      ) {
+        continue;
+      }
+
+      candles.push({
+        time,
+        open,
+        high,
+        low,
+        close,
+        volume: Array.isArray(v) && v[i] !== undefined ? v[i] : 0,
+      });
+    }
+
+    console.log(`✅ Parsed ${candles.length} candles for ${tickerUpper}`);
+    return candles;
+  } catch (error) {
+    console.error(`❌ Error fetching stock candles for ${ticker} from backend:`, error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('💡 Network error - make sure backend server is running on', BACKEND_API_BASE_URL);
+    }
+    return [];
   }
 }
 
@@ -349,6 +478,134 @@ export async function fetchSingleStock(
   } catch (error) {
     console.error('❌ Error fetching single stock data from backend:', error);
     throw error;
+  }
+}
+
+/**
+ * News Article interface
+ */
+export interface NewsArticle {
+  id: number;
+  date: string;
+  time: string;
+  source: string;
+  headline: string;
+  tickers: string[];
+  related?: string;
+  summary?: string;
+  url?: string;
+  image?: string;
+  category?: string;
+}
+
+/**
+ * Market News Response interface
+ */
+export interface MarketNewsResponse {
+  category: string;
+  min_id: number;
+  data: Array<{
+    category: string;
+    datetime: number;
+    headline: string;
+    id: number;
+    image?: string;
+    related?: string;
+    source: string;
+    summary: string;
+    url: string;
+  }>;
+  saved_to_db: boolean;
+  record_id?: string;
+  total_articles: number;
+}
+
+/**
+ * Fetch market news from Backend API (Backend → Finnhub)
+ */
+export async function fetchMarketNews(
+  category: string = 'general',
+  minId: number = 0,
+  saveToDb: boolean = true
+): Promise<NewsArticle[]> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/finnhub/news?category=${category}&min_id=${minId}&save_to_db=${saveToDb}`;
+    console.log(`🌐 Fetching market news via Backend API`);
+    console.log(`   URL: ${url}`);
+    console.log(`   Category: ${category}, Min ID: ${minId}`);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    console.log(`📡 Backend news response status:`, response.status, response.statusText);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Backend news API failed:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      
+      if (response.status === 404) {
+        console.error('💡 Status 404: No news found for this category');
+      } else if (response.status === 500) {
+        console.error('💡 Status 500: Backend server error - check backend logs');
+      }
+      
+      return [];
+    }
+    
+    const backendResponse: MarketNewsResponse = await response.json();
+    console.log(`📦 Backend news response:`, backendResponse);
+    console.log(`   Total articles: ${backendResponse.total_articles}`);
+    
+    // Transform API response to frontend format
+    const transformedNews: NewsArticle[] = backendResponse.data.map((article) => {
+      // Convert UNIX timestamp to date and time
+      const dateObj = new Date(article.datetime * 1000);
+      const date = dateObj.toISOString().split('T')[0]; // YYYY-MM-DD
+      const time = dateObj.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      }); // HH:MM AM/PM
+      
+      // Extract tickers from related field (if available)
+      let tickers: string[] = [];
+      if (article.related && article.related.trim() !== '') {
+        // Related field might contain ticker symbols separated by commas or spaces
+        tickers = article.related
+          .split(/[,\s]+/)
+          .map(t => t.trim().toUpperCase())
+          .filter(t => t.length > 0 && t.length <= 5); // Filter valid ticker symbols
+      }
+      
+      return {
+        id: article.id,
+        date,
+        time,
+        source: article.source,
+        headline: article.headline,
+        tickers,
+        related: article.related,
+        summary: article.summary,
+        url: article.url,
+        image: article.image,
+        category: article.category
+      };
+    });
+    
+    console.log(`✅ Transformed ${transformedNews.length} news articles`);
+    return transformedNews;
+  } catch (error) {
+    console.error(`❌ Error fetching market news from backend:`, error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('💡 Network error - make sure backend server is running on', BACKEND_API_BASE_URL);
+    }
+    return [];
   }
 }
 

@@ -38,15 +38,6 @@ const NewsFilterPanel = ({ filters, setFilters }: NewsFilterPanelProps) => {
     'Benzinga'
   ];
 
-  const sentimentOptions = [
-    'Any',
-    'Positive',
-    'Negative',
-    'Neutral',
-    'Very Positive',
-    'Very Negative'
-  ];
-
   return (
     <div className="filter-panel">
       <div className="filter-content">
@@ -70,18 +61,6 @@ const NewsFilterPanel = ({ filters, setFilters }: NewsFilterPanelProps) => {
               onChange={(e) => handleFilterChange('source', e.target.value)}
             >
               {sourceOptions.map((opt: string) => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-item">
-            <label>Sentiment</label>
-            <select 
-              value={filters.sentiment || 'Any'}
-              onChange={(e) => handleFilterChange('sentiment', e.target.value)}
-            >
-              {sentimentOptions.map((opt: string) => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
             </select>

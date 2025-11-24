@@ -381,6 +381,188 @@
   text-decoration: underline;
 }
 
+/* Portfolio Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 80px;
+  z-index: 200;
+}
+
+.portfolio-modal {
+  background-color: var(--bg-primary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  width: 600px;
+  max-width: 95%;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.portfolio-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.portfolio-modal-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.portfolio-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+.portfolio-modal-close:hover {
+  color: var(--link-color);
+}
+
+.portfolio-modal-body {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portfolio-name-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.portfolio-name-row label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.portfolio-name-row input {
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.portfolio-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.portfolio-summary-actions button {
+  background: none;
+  border: none;
+  color: var(--link-color);
+  cursor: pointer;
+  font-size: 11px;
+  margin-left: 8px;
+}
+
+.portfolio-summary-actions button:hover {
+  text-decoration: underline;
+}
+
+.portfolio-list {
+  margin-top: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  max-height: 280px;
+  overflow-y: auto;
+  background-color: var(--bg-secondary);
+}
+
+.portfolio-row {
+  display: grid;
+  grid-template-columns: 40px 80px 1fr 120px;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+}
+
+.portfolio-row:last-child {
+  border-bottom: none;
+}
+
+.portfolio-row:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.portfolio-row input[type="checkbox"] {
+  margin: 0;
+}
+
+.portfolio-ticker {
+  font-weight: 700;
+}
+
+.portfolio-company {
+  padding: 0 8px;
+  color: var(--text-secondary);
+}
+
+.portfolio-sector {
+  text-align: right;
+  color: var(--text-tertiary);
+}
+
+.portfolio-modal-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 5px 12px;
+  font-size: 11px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+}
+
+.btn-primary {
+  background-color: var(--link-color);
+  color: #fff;
+  border-color: var(--link-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--link-hover);
+}
+
+.btn-secondary {
+  background-color: var(--btn-bg);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--btn-hover);
+}
+
 /* Pagination */
 .pagination {
   background-color: var(--bg-primary);

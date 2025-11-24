@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { mockNews } from '../mockData';
 import { cn } from '../lib/utils';
@@ -92,7 +93,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#" className="company-link">{stock.company}</a></td>
                 <td><a href="#" className="industry-link">{stock.industry}</a></td>
                 <td><a href="#" className="country-link">{stock.country}</a></td>
@@ -162,7 +163,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.grossMargin5Y}</a></td>
                 <td><a href="#">{stock.grossMarginAnnual}</a></td>
                 <td><a href="#">{stock.grossMarginTTM}</a></td>
@@ -221,7 +222,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.currentDividendYieldTTM}</a></td>
                 <td><a href="#">{stock.dividendPerShareAnnual}</a></td>
                 <td><a href="#">{stock.dividendPerShareTTM}</a></td>
@@ -276,7 +277,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.revenuePerShareAnnual}</a></td>
                 <td><a href="#">{stock.revenuePerShareTTM}</a></td>
                 <td><a href="#">{stock.netIncomeEmployeeAnnual}</a></td>
@@ -345,7 +346,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.assetTurnoverAnnual}</a></td>
                 <td><a href="#">{stock.assetTurnoverTTM}</a></td>
                 <td><a href="#">{stock.inventoryTurnoverAnnual}</a></td>
@@ -399,7 +400,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.currentRatioAnnual}</a></td>
                 <td><a href="#">{stock.currentRatioQuarterly}</a></td>
                 <td><a href="#">{stock.quickRatioAnnual}</a></td>
@@ -454,7 +455,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.totalDebtTotalEquityAnnual}</a></td>
                 <td><a href="#">{stock.totalDebtTotalEquityQuarterly}</a></td>
                 <td><a href="#">{stock.longTermDebtEquityAnnual}</a></td>
@@ -513,7 +514,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.epsAnnual}</a></td>
                 <td><a href="#">{stock.epsTTM}</a></td>
                 <td><a href="#">{stock.epsBasicExclExtraItemsAnnual}</a></td>
@@ -603,7 +604,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.peTTM}</a></td>
                 <td><a href="#">{stock.peAnnual}</a></td>
                 <td><a href="#">{stock.forwardPe}</a></td>
@@ -795,7 +796,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.cashFlowPerShareAnnual}</a></td>
                 <td><a href="#">{stock.cashFlowPerShareQuarterly}</a></td>
                 <td><a href="#">{stock.cashFlowPerShareTTM}</a></td>
@@ -867,7 +868,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
               <tr key={stock.ticker}>
                 <td>{stock.no}</td>
-                <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+                <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.revenueGrowth3Y}</a></td>
                 <td><a href="#">{stock.revenueGrowth5Y}</a></td>
                 <td><a href="#">{stock.revenueGrowthQuarterlyYoy}</a></td>

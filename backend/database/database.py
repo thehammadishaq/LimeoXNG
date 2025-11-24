@@ -9,6 +9,7 @@ from models.basic_financials import BasicFinancials
 from models.fundamentals import Fundamentals
 from models.screener import ScreenerData
 from models.stock_symbols import StockSymbolsCache
+from models.news import MarketNews
 from config.settings import settings
 
 
@@ -46,6 +47,7 @@ async def init_db():
                 Fundamentals,
                 ScreenerData,
                 StockSymbolsCache,
+                MarketNews,
             ],
         )
         
