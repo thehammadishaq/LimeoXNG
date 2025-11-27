@@ -40,7 +40,7 @@ async def fetch_market_news_get(category: str, min_id: int = 0, save_to_db: bool
         record_id = None
         print(f"💾 save_to_db parameter: {save_to_db}")
         if save_to_db:
-            print(f"💾 Attempting to save market news for category {category_lower} to database...")
+            print(f"💾 Attempting to save market news for category {category_lower} to database (per-article)...")
             try:
                 # Extract actual news data (it's already a list)
                 articles_data = news_data if isinstance(news_data, list) else []
@@ -52,24 +52,8 @@ async def fetch_market_news_get(category: str, min_id: int = 0, save_to_db: bool
                 print(f"📦 Extracted {len(articles_data)} news articles")
 
                 news_service = NewsService()
-                existing_record = await news_service.get_by_category_and_min_id(category_lower, min_id)
-                print(f"🔍 Existing news check for category {category_lower}, min_id={min_id}: {'Found' if existing_record else 'Not found'}")
-
-                if existing_record:
-                    print(f"📝 Updating existing news for category {category_lower} with new data...")
-                    updated_record = await news_service.update_record(
-                        str(existing_record.id),
-                        NewsUpdate(data=articles_data, min_id=min_id),
-                    )
-                    record_id = str(updated_record.id) if updated_record else None
-                    print(f"✅ Updated existing news for category {category_lower} in DB: {record_id}")
-                else:
-                    print(f"📝 Creating new news record for category {category_lower}...")
-                    new_record = await news_service.create_record(
-                        NewsCreate(category=category_lower, min_id=min_id, data=articles_data)
-                    )
-                    record_id = str(new_record.id) if new_record else None
-                    print(f"✅ Created new news record for category {category_lower} in DB: {record_id}")
+                saved_count = await news_service.save_articles_only(category_lower, articles_data)
+                print(f"✅ Upserted {saved_count} news articles into NewsArticleDocument collection for category {category_lower}")
             except Exception as db_error:
                 print(f"❌ Error saving market news to database for category {category_lower}: {db_error}")
                 print(f"   Error type: {type(db_error).__name__}")

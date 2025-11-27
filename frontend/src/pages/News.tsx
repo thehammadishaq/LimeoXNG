@@ -4,8 +4,6 @@ import { Moon, Sun, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { fetchMarketNews, NewsArticle } from '../services/api';
 import NewsFilterPanel from '../components/NewsFilterPanel';
-import '../styles/Screener.css';
-import '../styles/StockTable.css';
 
 const News = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -161,9 +159,15 @@ const News = () => {
           </Link>
           <Link 
             to="/" 
-            className={`nav-link ${location.pathname === '/' ? 'nav-active' : ''}`}
+            className={`nav-link ${(location.pathname === '/' || location.pathname === '/screener') ? 'nav-active' : ''}`}
           >
             Screener
+          </Link>
+          <Link 
+            to="/ticker"
+            className={`nav-link ${location.pathname === '/ticker' ? 'nav-active' : ''}`}
+          >
+            Ticker
           </Link>
           <a href="#" className="nav-link">Maps</a>
           <a href="#" className="nav-link">Groups</a>

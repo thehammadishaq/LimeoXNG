@@ -9,7 +9,13 @@ from models.basic_financials import BasicFinancials
 from models.fundamentals import Fundamentals
 from models.screener import ScreenerData
 from models.stock_symbols import StockSymbolsCache
-from models.news import MarketNews
+from models.news import MarketNews, NewsArticleDocument
+from models.recommendation import RecommendationTrends
+from models.pattern import PatternScan
+from models.earnings import EarningsHistory
+from models.insider_transactions import InsiderTransactionDocument
+from models.cron_profile_cache import ProfileCacheCronRun
+from models.stock_candles import LatestCandle
 from config.settings import settings
 
 
@@ -48,6 +54,13 @@ async def init_db():
                 ScreenerData,
                 StockSymbolsCache,
                 MarketNews,
+                NewsArticleDocument,
+                RecommendationTrends,
+                PatternScan,
+                EarningsHistory,
+                InsiderTransactionDocument,
+                ProfileCacheCronRun,
+                LatestCandle,
             ],
         )
         

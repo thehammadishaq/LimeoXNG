@@ -6,18 +6,6 @@ import FilterPanel from '../components/FilterPanel';
 import StockTable from '../components/StockTableEnhanced';
 import { useTheme } from '../context/ThemeContext';
 import { fetchScreenerData, transformStockData } from '../services/api';
-import '../styles/Screener.css';
-
-// Default stock symbols to fetch
-const DEFAULT_STOCK_SYMBOLS = [
-  'NVDA',
-  'AAPL',
-  'MSFT',
-  'GOOGL',
-  'AMZN',
-  'CIFR',
-  'IREN',
-];
 
 const Screener = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -53,11 +41,22 @@ const Screener = () => {
     setError(null);
     
     try {
-      // Use provided symbols or default symbols
-      const symbolsToFetch = symbols || DEFAULT_STOCK_SYMBOLS;
-      console.log('🔄 Fetching data for symbols:', symbolsToFetch);
+      console.log('🔄 Fetching screener data from DB...', {
+        forceRefresh,
+        pageNum,
+        itemsPerPage,
+        symbols,
+        includeFinancials,
+      });
       
-      const response = await fetchScreenerData(pageNum, itemsPerPage, forceRefresh, symbolsToFetch, includeFinancials);
+      // If symbols are provided, pass them; otherwise fetch all from DB for the current page
+      const response = await fetchScreenerData(
+        pageNum,
+        itemsPerPage,
+        forceRefresh,
+        symbols,
+        includeFinancials
+      );
       
       console.log('📦 API Response:', response);
       console.log('📊 Stocks received:', response.stocks?.length || 0);
@@ -151,9 +150,9 @@ const Screener = () => {
 
   // Initial load - fetch default symbols (profiles only, no financials)
   useEffect(() => {
-    // Fetch both profile and financials data on page load
-    console.log('🔄 Initial page load - fetching profile and financials data...');
-    fetchData(false, 1, DEFAULT_STOCK_SYMBOLS, true);
+    // Fetch both profile and financials data from DB on page load (all tickers, paginated)
+    console.log('🔄 Initial page load - fetching profile and financials data from DB...');
+    fetchData(false, 1, undefined, true);
     setFinancialsLoaded(true); // Mark as loaded since we're fetching it initially
   }, []);
 
@@ -269,7 +268,7 @@ const Screener = () => {
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
     // If financials were already loaded once, keep including them for new pages
-    fetchData(false, pageNumber, DEFAULT_STOCK_SYMBOLS, financialsLoaded);
+    fetchData(false, pageNumber, undefined, financialsLoaded);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -381,9 +380,15 @@ const Screener = () => {
           </Link>
           <Link 
             to="/" 
-            className={`nav-link ${location.pathname === '/' ? 'nav-active' : ''}`}
+            className={`nav-link ${(location.pathname === '/' || location.pathname === '/screener') ? 'nav-active' : ''}`}
           >
             Screener
+          </Link>
+          <Link 
+            to="/ticker"
+            className={`nav-link ${location.pathname === '/ticker' ? 'nav-active' : ''}`}
+          >
+            Ticker
           </Link>
           <a href="#" className="nav-link">Maps</a>
           <a href="#" className="nav-link">Groups</a>
@@ -586,7 +591,7 @@ const Screener = () => {
               onClick={(e) => {
                 e.preventDefault();
                 // Respect whether financials were loaded before
-                fetchData(true, currentPage, DEFAULT_STOCK_SYMBOLS, financialsLoaded);
+                fetchData(true, currentPage, undefined, financialsLoaded);
               }}
               style={{ marginLeft: '4px', cursor: 'pointer' }}
             >
@@ -598,7 +603,7 @@ const Screener = () => {
               onClick={(e) => {
                 e.preventDefault();
                 // Respect whether financials were loaded before
-                fetchData(false, currentPage, DEFAULT_STOCK_SYMBOLS, financialsLoaded);
+                fetchData(false, currentPage, undefined, financialsLoaded);
               }}
               style={{ cursor: 'pointer' }}
             >
@@ -620,7 +625,7 @@ const Screener = () => {
             <div>
               <p>{error}</p>
               <button 
-                onClick={() => fetchData(false, 1, DEFAULT_STOCK_SYMBOLS)}
+                onClick={() => fetchData(false, 1)}
                 style={{
                   marginTop: '10px',
                   padding: '8px 16px',

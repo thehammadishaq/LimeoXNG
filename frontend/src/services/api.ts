@@ -82,6 +82,60 @@ export interface StockFinancials {
   symbol?: string;
 }
 
+export interface RecommendationTrend {
+  buy: number;
+  hold: number;
+  period: string;
+  sell: number;
+  strongBuy: number;
+  strongSell: number;
+  symbol: string;
+}
+
+export interface RecommendationFetchResponse {
+  ticker: string;
+  data: RecommendationTrend[];
+  saved_to_db: boolean;
+  record_id?: string;
+}
+
+export interface RecommendationDbResponse {
+  id?: string;
+  ticker: string;
+  data: any[]; // raw array from RecommendationTrends.data
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Earnings surprises
+export interface EarningsItem {
+  actual: number | null;
+  estimate: number | null;
+  period: string;
+  quarter: number;
+  surprise: number | null;
+  surprisePercent: number | null;
+  symbol: string;
+  year: number;
+}
+
+export interface EarningsFetchResponse {
+  ticker: string;
+  limit?: number;
+  data: EarningsItem[];
+  saved_to_db: boolean;
+  record_id?: string;
+}
+
+export interface EarningsDbResponse {
+  id?: string;
+  ticker: string;
+  data: any[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+
 // Stock candles (OHLCV) type for chart integration
 export interface StockCandle {
   // UNIX timestamp in seconds (Finnhub format, compatible with lightweight-charts UTCTimestamp)
@@ -115,6 +169,57 @@ export interface SingleStockResponse {
   fetched_at: string;
 }
 
+// Company news (per symbol)
+export interface CompanyNewsArticle {
+  category: string;
+  datetime: number;
+  headline: string;
+  id: number;
+  image?: string;
+  related?: string;
+  source: string;
+  summary: string;
+  url: string;
+}
+
+export interface CompanyNewsFetchResponse {
+  symbol: string;
+  date_from: string;
+  date_to: string;
+  data: CompanyNewsArticle[];
+  saved_to_db: boolean;
+  total_articles: number;
+}
+
+// Stock symbols (from DB cache)
+export interface StockSymbolsListResponse {
+  symbols: string[];
+  total: number;
+  exchanges: string[];
+  updated_at?: string;
+}
+
+// Insider transactions
+export interface InsiderTransaction {
+  name: string;
+  share: number;
+  change: number;
+  filingDate: string;
+  transactionDate: string;
+  transactionCode: string;
+  transactionPrice: number;
+  symbol: string;
+}
+
+export interface InsiderTransactionsFetchResponse {
+  symbol: string;
+  from_date?: string | null;
+  to_date?: string | null;
+  limit?: number | null;
+  data: InsiderTransaction[];
+  saved_to_db: boolean;
+  total_transactions: number;
+}
 
 
 /**
@@ -191,6 +296,59 @@ export async function fetchStockProfile(ticker: string): Promise<StockProfile | 
 
 
 /**
+ * Fetch stock profile from Database only (read-only).
+ * Uses backend DB read-only endpoint: /db/profile/{ticker}
+ */
+export async function fetchStockProfileFromDb(ticker: string): Promise<StockProfile | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url = `${BACKEND_API_BASE_URL}/db/profile/${tickerUpper}`;
+    console.log(`🌐 Fetching profile from DB for ${tickerUpper}`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ DB profile API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    // DB response shape: { id, ticker, data, created_at, updated_at }
+    const dbResponse: {
+      ticker: string;
+      data: any;
+      created_at?: string;
+      updated_at?: string;
+    } = await response.json();
+
+    const profile = dbResponse.data || {};
+
+    if (!profile) {
+      console.warn(`⚠️ No profile data in DB document for ${tickerUpper}`);
+      return null;
+    }
+
+    // If name is missing but ticker exists, use ticker as name (same behavior as live profile)
+    if (!profile.name && dbResponse.ticker) {
+      profile.name = dbResponse.ticker;
+    }
+
+    return profile as StockProfile;
+  } catch (error) {
+    console.error(`❌ Error fetching profile for ${ticker} from DB:`, error);
+    return null;
+  }
+}
+
+/**
  * Fetch basic financials (metrics) from Backend API (Backend → Finnhub /stock/metric)
  * Exported so that screens can decide when to call it (e.g. only on Financial tab).
  */
@@ -237,6 +395,57 @@ export async function fetchStockFinancials(ticker: string): Promise<StockFinanci
     if (error instanceof TypeError && error.message.includes('fetch')) {
       console.error('💡 Network error - make sure backend server is running on', BACKEND_API_BASE_URL);
     }
+    return null;
+  }
+}
+
+
+/**
+ * Fetch basic financials from Database only (read-only).
+ * Uses backend DB read-only endpoint: /db/basic-financials/{ticker}
+ */
+export async function fetchStockFinancialsFromDb(
+  ticker: string
+): Promise<StockFinancials | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url = `${BACKEND_API_BASE_URL}/db/basic-financials/${tickerUpper}`;
+    console.log(`🌐 Fetching basic financials from DB for ${tickerUpper}`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ DB basic-financials API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    // DB response shape: { id, ticker, data, created_at, updated_at }
+    const dbResponse: {
+      ticker: string;
+      data: any;
+      created_at?: string;
+      updated_at?: string;
+    } = await response.json();
+
+    const financialsData = dbResponse.data || {};
+
+    if (!financialsData || typeof financialsData !== 'object') {
+      console.warn(`⚠️ No basic financials data in DB document for ${tickerUpper}`);
+      return null;
+    }
+
+    return financialsData as StockFinancials;
+  } catch (error) {
+    console.error(`❌ Error fetching basic financials for ${ticker} from DB:`, error);
     return null;
   }
 }
@@ -360,6 +569,560 @@ export async function fetchStockCandles(
 }
 
 /**
+ * Fetch recommendation trends for a ticker via Backend API (Finnhub /stock/recommendation)
+ */
+export async function fetchRecommendationTrends(
+  ticker: string,
+  saveToDb: boolean = true
+): Promise<RecommendationFetchResponse | null> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/finnhub/recommendation/${ticker}?save_to_db=${saveToDb}`;
+    console.log(`🌐 Fetching recommendation trends for ${ticker} via Backend API`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(
+      `📡 Backend recommendation response status for ${ticker}:`,
+      response.status,
+      response.statusText
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Backend recommendation API failed for ${ticker}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const backendResponse = (await response.json()) as RecommendationFetchResponse;
+    console.log(`📦 Backend recommendation response for ${ticker}:`, backendResponse);
+    return backendResponse;
+  } catch (error) {
+    console.error(`❌ Error fetching recommendation trends for ${ticker} from backend:`, error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('💡 Network error - make sure backend server is running on', BACKEND_API_BASE_URL);
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetch recommendation trends from Database only (read-only).
+ * Uses backend DB read-only endpoint: /db/recommendation/{ticker}
+ */
+export async function fetchRecommendationTrendsFromDb(
+  ticker: string
+): Promise<RecommendationTrend[] | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url = `${BACKEND_API_BASE_URL}/db/recommendation/${tickerUpper}`;
+    console.log(`🌐 Fetching recommendation trends from DB for ${tickerUpper}`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ DB recommendation API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const dbResponse: RecommendationDbResponse = await response.json();
+    const raw = dbResponse.data || [];
+
+    if (!Array.isArray(raw) || raw.length === 0) {
+      console.warn(`⚠️ No recommendation trends data in DB for ${tickerUpper}`);
+      return null;
+    }
+
+    // Map raw Finnhub-style objects into RecommendationTrend shape
+    const mapped: RecommendationTrend[] = raw.map((item: any) => ({
+      buy: item.buy ?? 0,
+      hold: item.hold ?? 0,
+      sell: item.sell ?? 0,
+      strongBuy: item.strongBuy ?? item.strong_buy ?? 0,
+      strongSell: item.strongSell ?? item.strong_sell ?? 0,
+      period: item.period ?? '',
+      symbol: item.symbol ?? tickerUpper,
+    }));
+
+    return mapped;
+  } catch (error) {
+    console.error(`❌ Error fetching recommendation trends for ${ticker} from DB:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch historical earnings surprises for a ticker via Backend API (Finnhub /stock/earnings)
+ */
+export async function fetchEarningsHistory(
+  ticker: string,
+  limit: number = 5,
+  saveToDb: boolean = true
+): Promise<EarningsFetchResponse | null> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/finnhub/earnings/${ticker}?limit=${limit}&save_to_db=${saveToDb}`;
+    console.log(`🌐 Fetching earnings history for ${ticker} via Backend API`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(
+      `📡 Backend earnings response status for ${ticker}:`,
+      response.status,
+      response.statusText
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Backend earnings API failed for ${ticker}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const backendResponse = (await response.json()) as EarningsFetchResponse;
+    console.log(`📦 Backend earnings response for ${ticker}:`, backendResponse);
+    return backendResponse;
+  } catch (error) {
+    console.error(`❌ Error fetching earnings history for ${ticker} from backend:`, error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('💡 Network error - make sure backend server is running on', BACKEND_API_BASE_URL);
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetch historical earnings surprises from Database only (read-only).
+ * Uses backend DB read-only endpoint: /db/earnings/{ticker}
+ */
+export async function fetchEarningsHistoryFromDb(
+  ticker: string
+): Promise<EarningsItem[] | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url = `${BACKEND_API_BASE_URL}/db/earnings/${tickerUpper}`;
+    console.log(`🌐 Fetch earnings history from DB for ${tickerUpper}`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ DB earnings API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const dbResponse: EarningsDbResponse = await response.json();
+    const raw = dbResponse.data || [];
+
+    if (!Array.isArray(raw) || raw.length === 0) {
+      console.warn(`⚠️ No earnings history data in DB for ${tickerUpper}`);
+      return null;
+    }
+
+    const mapped: EarningsItem[] = raw.map((e: any) => ({
+      actual: e.actual ?? null,
+      estimate: e.estimate ?? null,
+      period: e.period ?? '',
+      quarter: e.quarter ?? 0,
+      surprise: e.surprise ?? null,
+      surprisePercent: e.surprisePercent ?? null,
+      symbol: e.symbol ?? tickerUpper,
+      year: e.year ?? 0,
+    }));
+
+    return mapped;
+  } catch (error) {
+    console.error(`❌ Error fetching earnings history for ${ticker} from DB:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch company-specific news for a ticker via Backend API (Finnhub /company-news)
+ */
+export async function fetchCompanyNews(
+  ticker: string,
+  from: string,
+  to: string,
+  saveToDb: boolean = true
+): Promise<CompanyNewsFetchResponse | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url =
+      `${BACKEND_API_BASE_URL}/finnhub/company-news/${tickerUpper}` +
+      `?from=${encodeURIComponent(from)}` +
+      `&to=${encodeURIComponent(to)}` +
+      `&save_to_db=${saveToDb}`;
+    console.log(`🌐 Fetching company news for ${tickerUpper} via Backend API`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(
+      `📡 Backend company-news response status for ${tickerUpper}:`,
+      response.status,
+      response.statusText
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Backend company-news API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const backendResponse = (await response.json()) as CompanyNewsFetchResponse;
+    console.log(`📦 Backend company-news response for ${tickerUpper}:`, backendResponse);
+    return backendResponse;
+  } catch (error) {
+    console.error(`❌ Error fetching company news for ${ticker} from backend:`, error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error(
+        '💡 Network error - make sure backend server is running on',
+        BACKEND_API_BASE_URL
+      );
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetch company-specific news from Database only (read-only).
+ * Uses backend DB read-only endpoint: /db/company-news/{ticker}
+ */
+export async function fetchCompanyNewsFromDb(
+  ticker: string,
+  limit: number = 50
+): Promise<CompanyNewsFetchResponse | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url = `${BACKEND_API_BASE_URL}/db/company-news/${tickerUpper}?limit=${limit}`;
+    console.log(`🌐 Fetching company news from DB for ${tickerUpper}`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ DB company-news API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const dbResponse = (await response.json()) as CompanyNewsFetchResponse;
+    console.log(`📦 DB company-news response for ${tickerUpper}:`, dbResponse);
+    return dbResponse;
+  } catch (error) {
+    console.error(`❌ Error fetching company news for ${ticker} from DB:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch insider transactions for a ticker via Backend API (Finnhub /stock/insider-transactions)
+ */
+export async function fetchInsiderTransactions(
+  ticker: string,
+  limit: number = 20,
+  saveToDb: boolean = true
+): Promise<InsiderTransactionsFetchResponse | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const params = new URLSearchParams({
+      symbol: tickerUpper,
+      limit: String(limit),
+      save_to_db: String(saveToDb),
+    });
+    const url = `${BACKEND_API_BASE_URL}/finnhub/insider-transactions?${params.toString()}`;
+    console.log(`🌐 Fetching insider transactions for ${tickerUpper} via Backend API`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(
+      `📡 Backend insider-transactions response status for ${tickerUpper}:`,
+      response.status,
+      response.statusText
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Backend insider-transactions API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const backendResponse = (await response.json()) as InsiderTransactionsFetchResponse;
+    console.log(`📦 Backend insider-transactions response for ${tickerUpper}:`, backendResponse);
+    return backendResponse;
+  } catch (error) {
+    console.error(`❌ Error fetching insider transactions for ${ticker} from backend:`, error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error(
+        '💡 Network error - make sure backend server is running on',
+        BACKEND_API_BASE_URL
+      );
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetch insider transactions from Database only (read-only).
+ * Uses backend DB read-only endpoint: /db/insider-transactions/{ticker}
+ */
+export async function fetchInsiderTransactionsFromDb(
+  ticker: string,
+  limit: number = 25
+): Promise<InsiderTransaction[] | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url = `${BACKEND_API_BASE_URL}/db/insider-transactions/${tickerUpper}?limit=${limit}`;
+    console.log(`🌐 Fetching insider transactions from DB for ${tickerUpper}`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ DB insider-transactions API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const backendResponse = (await response.json()) as InsiderTransactionsFetchResponse;
+    console.log(`📦 DB insider-transactions response for ${tickerUpper}:`, backendResponse);
+    return backendResponse.data ?? null;
+  } catch (error) {
+    console.error(`❌ Error fetching insider transactions for ${ticker} from DB:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch list of available stock symbols from Database (cache).
+ * Uses backend DB read-only endpoint: /db/symbols
+ */
+export async function fetchSymbolsFromDb(): Promise<StockSymbolsListResponse | null> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/db/symbols`;
+    console.log('🌐 Fetching stock symbols from DB');
+    console.log('   URL:', url);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ DB symbols API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const dbResponse = (await response.json()) as StockSymbolsListResponse;
+    console.log('📦 DB symbols response:', dbResponse);
+    return dbResponse;
+  } catch (error) {
+    console.error('❌ Error fetching stock symbols from DB:', error);
+    return null;
+  }
+}
+
+/**
+ * Refresh stock symbols cache via Backend API (Finnhub /stock/symbol).
+ * Uses backend endpoint: POST /finnhub/symbols/refresh
+ */
+export async function refreshSymbolsCache(): Promise<StockSymbolsListResponse | null> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/finnhub/symbols/refresh`;
+    console.log('🌐 Refreshing stock symbols cache via Finnhub');
+    console.log('   URL:', url);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Symbols refresh API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const backendResponse = (await response.json()) as StockSymbolsListResponse;
+    console.log('📦 Symbols refresh response:', backendResponse);
+    return backendResponse;
+  } catch (error) {
+    console.error('❌ Error refreshing stock symbols cache via backend:', error);
+    return null;
+  }
+}
+
+/**
+ * Run backend cron job to refresh profile-related caches for tickers.
+ * Backend endpoint: POST /finnhub/cron/profile-cache
+ */
+export async function runProfileCron(
+  waitBetweenSec: number = 1,
+  limit?: number
+): Promise<any | null> {
+  try {
+    const params = new URLSearchParams({
+      wait_sec: String(waitBetweenSec),
+    });
+    if (typeof limit === 'number' && limit > 0) {
+      params.set('limit', String(limit));
+    }
+    const url = `${BACKEND_API_BASE_URL}/finnhub/cron/profile-cache?${params.toString()}`;
+    console.log('🌐 Running profile cache cron via backend');
+    console.log('   URL:', url);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Profile cron API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const result = await response.json();
+    console.log('📦 Profile cron result:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Error running profile cron via backend:', error);
+    return null;
+  }
+}
+
+// ---- Cron job DB status ----
+
+export interface CronTickerStatus {
+  ticker: string;
+  ok: boolean;
+  errors: string[];
+  processed_at: string;
+}
+
+export interface CronProfileStatusResponse {
+  id?: string | null;
+  started_at: string;
+  finished_at: string;
+  wait_sec: number;
+  limit?: number | null;
+  total_cached: number;
+  processed: number;
+  success: number;
+  failed: number;
+  tickers: CronTickerStatus[];
+}
+
+/**
+ * Fetch latest profile-cache cron status from DB-only endpoint.
+ * Backend endpoint: GET /db/cron/profile-status
+ */
+export async function fetchLatestProfileCronStatus(): Promise<CronProfileStatusResponse | null> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/db/cron/profile-status`;
+    console.log('🌐 Fetching latest profile cron status from DB');
+    console.log('   URL:', url);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Profile cron status API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const result = (await response.json()) as CronProfileStatusResponse;
+    console.log('📦 Latest profile cron status:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Error fetching profile cron status from DB:', error);
+    return null;
+  }
+}
+
+// (Pattern recognition frontend helpers removed as per latest requirements)
+
+/**
  * Fetch screener data for multiple stocks.
  * By default this ONLY fetches profile data.
  * If includeFinancials=true, it will also fetch basic financials (/stock/metric).
@@ -374,77 +1137,151 @@ export async function fetchScreenerData(
   try {
     console.log('🚀 fetchScreenerData called with:', { page, pageSize, forceRefresh, symbols, includeFinancials });
     console.log('🌐 Using Backend API:', BACKEND_API_BASE_URL);
-    
-    // Only fetch if specific symbols are provided
-    if (!symbols || symbols.length === 0) {
-      console.warn('⚠️ No symbols provided to fetchScreenerData');
+
+    // If specific symbols are provided, fetch just those from DB
+    if (symbols && symbols.length > 0) {
+      const symbolList = symbols.map((s) => s.toUpperCase().trim());
+      console.log(
+        `📊 Fetching profile/basic-financials for ${symbolList.length} symbols via Backend DB (per-symbol mode):`,
+        symbolList
+      );
+
+      const stockPromises = symbolList.map(async (ticker) => {
+        try {
+          console.log(`🔄 Starting backend DB fetch for ${ticker}...`);
+          const profile = await fetchStockProfileFromDb(ticker);
+          const financials = includeFinancials ? await fetchStockFinancialsFromDb(ticker) : null;
+
+          if (!profile || !profile.name) {
+            console.warn(`⚠️ No valid DB profile data for ${ticker} - skipping`);
+            return null;
+          }
+
+          console.log(`✅ Successfully fetched profile for ${ticker} from DB`);
+          if (!financials && includeFinancials) {
+            console.warn(`⚠️ No DB basic financials for ${ticker} - continuing with profile only`);
+          }
+
+          return {
+            ticker,
+            profile,
+            financials: financials || null,
+            fetched_at: new Date().toISOString(),
+          };
+        } catch (error) {
+          console.error(`❌ Error fetching data for ${ticker} from backend:`, error);
+          return null;
+        }
+      });
+
+      console.log('⏳ Waiting for all backend DB calls (per-symbol) to complete...');
+      const stockResults = await Promise.all(stockPromises);
+      const validStocks = stockResults.filter((stock) => stock !== null) as StockData[];
+
+      console.log(`📈 Results: ${validStocks.length} valid stocks out of ${symbolList.length} requested`);
+      console.log('📋 Valid stocks:', validStocks.map((s) => s.ticker));
+
+      return {
+        stocks: validStocks,
+        total: validStocks.length,
+        cached_count: 0,
+        fresh_count: validStocks.length,
+        fetched_at: new Date().toISOString(),
+        source: 'backend-db',
+      };
+    }
+
+    // If no symbols provided, fetch ALL profiles from DB for the requested page
+    const listUrl = `${BACKEND_API_BASE_URL}/db/profiles?page=${page}&page_size=${pageSize}`;
+    console.log('🌐 Fetching paginated profiles list from DB:', listUrl);
+
+    type DbProfilesResponse = {
+      profiles: {
+        ticker: string;
+        data: any;
+        created_at?: string;
+        updated_at?: string;
+      }[];
+      total: number;
+      page: number;
+      page_size: number;
+    };
+
+    const listResponse = await fetch(listUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!listResponse.ok) {
+      const errorText = await listResponse.text();
+      console.error('❌ DB profiles list API failed:');
+      console.error(`   Status: ${listResponse.status} ${listResponse.statusText}`);
+      console.error(`   Error: ${errorText}`);
       return {
         stocks: [],
         total: 0,
         cached_count: 0,
         fresh_count: 0,
         fetched_at: new Date().toISOString(),
-        source: 'backend'
+        source: 'backend-db',
       };
     }
-    
-    const symbolList = symbols.map(s => s.toUpperCase().trim());
-    console.log(`📊 Fetching profile data for ${symbolList.length} symbols via Backend:`, symbolList);
-    
-    // Fetch profile (and optionally basic financials) data for all symbols in parallel through backend
-    const stockPromises = symbolList.map(async (ticker) => {
-      try {
-        console.log(`🔄 Starting backend fetch for ${ticker}...`);
-        const profile = await fetchStockProfile(ticker);
-        const financials = includeFinancials ? await fetchStockFinancials(ticker) : null;
-        
-        // Only return stock if we have valid profile data
-        if (!profile || !profile.name) {
-          console.warn(`⚠️ No valid profile data for ${ticker} - skipping`);
+
+    const dbProfiles: DbProfilesResponse = await listResponse.json();
+    console.log(
+      `📦 DB profiles list: page=${dbProfiles.page}, page_size=${dbProfiles.page_size}, total=${dbProfiles.total}`
+    );
+
+    if (!dbProfiles.profiles || dbProfiles.profiles.length === 0) {
+      console.warn('⚠️ No profiles found in DB for current page');
+      return {
+        stocks: [],
+        total: dbProfiles.total || 0,
+        cached_count: 0,
+        fresh_count: 0,
+        fetched_at: new Date().toISOString(),
+        source: 'backend-db',
+      };
+    }
+
+    // Optionally fetch financials for each profile (if requested)
+    const stockResults = await Promise.all(
+      dbProfiles.profiles.map(async (p) => {
+        try {
+          const ticker = p.ticker.toUpperCase().trim();
+          const profile = p.data || {};
+          if (!profile || (!profile.name && !ticker)) {
+            console.warn(`⚠️ Skipping DB profile with invalid data for ${ticker}`);
+            return null;
+          }
+
+          const financials = includeFinancials ? await fetchStockFinancialsFromDb(ticker) : null;
+
+          return {
+            ticker,
+            profile,
+            financials: financials || null,
+            fetched_at: p.updated_at || p.created_at || new Date().toISOString(),
+          };
+        } catch (error) {
+          console.error('❌ Error building stock record from DB profile:', error);
           return null;
         }
-        
-        console.log(`✅ Successfully fetched profile for ${ticker} via backend`);
-        if (!financials) {
-          console.warn(`⚠️ No basic financials for ${ticker} - continuing with profile only`);
-        }
+      })
+    );
 
-        return {
-          ticker,
-          profile,
-          financials: financials || null,
-          fetched_at: new Date().toISOString()
-        };
-      } catch (error) {
-        console.error(`❌ Error fetching data for ${ticker} from backend:`, error);
-        return null;
-      }
-    });
-    
-    console.log('⏳ Waiting for all backend API calls to complete...');
-    const stockResults = await Promise.all(stockPromises);
-    const validStocks = stockResults.filter(stock => stock !== null) as StockData[];
-    
-    console.log(`📈 Results: ${validStocks.length} valid stocks out of ${symbolList.length} requested`);
-    console.log('📋 Valid stocks:', validStocks.map(s => s.ticker));
-    
-    if (validStocks.length === 0) {
-      console.error('❌ No valid stocks returned!');
-      console.error('💡 Possible reasons:');
-      console.error('   1. Backend server is not running');
-      console.error('   2. Backend API key is invalid or missing');
-      console.error('   3. Network/CORS issues');
-      console.error('   4. Premium subscription required for Finnhub endpoint');
-      console.error(`   5. Backend URL incorrect: ${BACKEND_API_BASE_URL}`);
-    }
-    
+    const validStocks = stockResults.filter((s) => s !== null) as StockData[];
+    console.log(`📈 Built ${validStocks.length} valid stocks from DB profiles`);
+
     return {
       stocks: validStocks,
-      total: validStocks.length,
-      cached_count: 0, // No cache
+      total: dbProfiles.total,
+      cached_count: 0,
       fresh_count: validStocks.length,
       fetched_at: new Date().toISOString(),
-      source: 'backend'
+      source: 'backend-db',
     };
   } catch (error) {
     console.error('❌ Error fetching screener data from backend:', error);

@@ -10,6 +10,7 @@ import {
   LineSeries,
   AreaSeries,
 } from 'lightweight-charts';
+import { useTheme } from '../context/ThemeContext';
 
 interface TradingViewChartProps {
   symbol: string;
@@ -30,6 +31,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -47,24 +49,39 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
       }
 
       try {
-        // Get colors from CSS variables
-        const computedStyle = getComputedStyle(document.documentElement);
-        const textColor = computedStyle.getPropertyValue('--text-primary').trim() || '#000000';
-        const borderColor = computedStyle.getPropertyValue('--border-color').trim() || '#d0d0d0';
+        // Get colors from CSS variables (respect current theme)
+        const root = document.documentElement;
+        const computedStyle = getComputedStyle(root);
+        const bgColor =
+          computedStyle.getPropertyValue('--bg-primary').trim() ||
+          (isDark ? '#111111' : '#ffffff');
+        const textColor =
+          computedStyle.getPropertyValue('--text-primary').trim() ||
+          (isDark ? '#e5e7eb' : '#111827');
+        const borderColor =
+          computedStyle.getPropertyValue('--border-color').trim() ||
+          (isDark ? '#374151' : '#d1d5db');
+        const gridColor = isDark ? '#2a2a2a' : '#e5e7eb';
+        const upColor =
+          computedStyle.getPropertyValue('--positive').trim() || '#10b981';
+        const downColor =
+          computedStyle.getPropertyValue('--negative').trim() || '#ef4444';
+        const accentColor =
+          computedStyle.getPropertyValue('--link-color').trim() || '#0088cc';
 
         // Create chart
         chart = createChart(container, {
           layout: {
-            background: { type: ColorType.Solid, color: 'transparent' },
+            background: { type: ColorType.Solid, color: bgColor },
             textColor: textColor,
           },
           grid: {
             vertLines: { 
-              color: borderColor,
+              color: gridColor,
               visible: true,
             },
             horzLines: { 
-              color: borderColor,
+              color: gridColor,
               visible: true,
             },
           },
@@ -96,11 +113,11 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
         try {
           // v5 syntax: addSeries(CandlestickSeries, options)
           candlestickSeries = chart.addSeries(CandlestickSeries, {
-            upColor: '#10b981',
-            downColor: '#ef4444',
+            upColor,
+            downColor,
             borderVisible: false,
-            wickUpColor: '#10b981',
-            wickDownColor: '#ef4444',
+            wickUpColor: upColor,
+            wickDownColor: downColor,
           });
           console.log('✅ Candlestick series created using addSeries(CandlestickSeries, options)');
         } catch (e: any) {
@@ -127,7 +144,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
             // Create volume series using addSeries (Histogram)
             try {
               const volumeSeries = chart.addSeries(HistogramSeries, {
-                color: '#26a69a',
+                color: isDark ? '#4b5563' : '#d1d5db',
                 priceFormat: {
                   type: 'volume',
                 },
@@ -146,7 +163,9 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
                   return {
                     time: candle.time,
                     value: volume,
-                    color: candle.close >= candle.open ? '#10b98133' : '#ef444433',
+                    color: candle.close >= candle.open
+                      ? (isDark ? '#10b98155' : '#10b98133')
+                      : (isDark ? '#ef444455' : '#ef444433'),
                   };
                 });
 
@@ -211,7 +230,7 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
       candlestickSeriesRef.current = null;
       volumeSeriesRef.current = null;
     };
-  }, [data, height]);
+  }, [data, height, isDark]);
 
   // Update chart type
   useEffect(() => {
@@ -233,20 +252,32 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
       let newSeries: ISeriesApi<'Candlestick' | 'Line' | 'Area'> | null = null;
 
       if (chartType === 'candlestick') {
+        const root = document.documentElement;
+        const computedStyle = getComputedStyle(root);
+        const upColor =
+          computedStyle.getPropertyValue('--positive').trim() || '#10b981';
+        const downColor =
+          computedStyle.getPropertyValue('--negative').trim() || '#ef4444';
+
         newSeries = chart.addSeries(CandlestickSeries, {
-          upColor: '#10b981',
-          downColor: '#ef4444',
+          upColor,
+          downColor,
           borderVisible: false,
-          wickUpColor: '#10b981',
-          wickDownColor: '#ef4444',
+          wickUpColor: upColor,
+          wickDownColor: downColor,
         });
         if (newSeries) {
           newSeries.setData(chartData);
           chart.timeScale().fitContent();
         }
       } else if (chartType === 'line') {
+        const root = document.documentElement;
+        const computedStyle = getComputedStyle(root);
+        const accentColor =
+          computedStyle.getPropertyValue('--link-color').trim() || '#0088cc';
+
         newSeries = chart.addSeries(LineSeries, {
-          color: '#0088cc',
+          color: accentColor,
           lineWidth: 2,
         });
         if (newSeries) {
@@ -258,10 +289,15 @@ const TradingViewChart: React.FC<TradingViewChartProps> = ({
           chart.timeScale().fitContent();
         }
       } else {
+        const root = document.documentElement;
+        const computedStyle = getComputedStyle(root);
+        const accentColor =
+          computedStyle.getPropertyValue('--link-color').trim() || '#0088cc';
+
         newSeries = chart.addSeries(AreaSeries, {
-          lineColor: '#0088cc',
-          topColor: '#0088cc33',
-          bottomColor: '#0088cc00',
+          lineColor: accentColor,
+          topColor: `${accentColor}33` as any,
+          bottomColor: `${accentColor}00` as any,
         });
         if (newSeries) {
           const areaData = chartData.map(candle => ({

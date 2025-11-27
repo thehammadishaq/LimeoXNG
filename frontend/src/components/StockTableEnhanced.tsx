@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { mockNews } from '../mockData';
 import { cn } from '../lib/utils';
-import '../styles/StockTable.css';
 
 // Simple Skeleton component
 const Skeleton = ({ className = '', style, ...props }: { className?: string; style?: React.CSSProperties; [key: string]: any }) => {
@@ -665,7 +664,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
           {stocks.map((stock) => (
             <tr key={stock.ticker}>
               <td>{stock.no}</td>
-              <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+              <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
               <td><a href="#">{stock.marketCap}</a></td>
               <td><a href="#">-</a></td>
               <td><a href="#">-</a></td>
@@ -736,7 +735,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
             <tr key={stock.ticker}>
               <td>{stock.no}</td>
-              <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+              <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.priceReturn13Week}</a></td>
                 <td><a href="#">{stock.priceReturn26Week}</a></td>
                 <td><a href="#">{stock.priceReturn52Week}</a></td>
@@ -933,7 +932,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
             stocks.map((stock) => (
             <tr key={stock.ticker}>
               <td>{stock.no}</td>
-              <td><a href="#" className="ticker-link">{stock.ticker}</a></td>
+              <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
                 <td><a href="#">{stock.avgTradingVolume10Day}</a></td>
                 <td><a href="#">{stock.avgTradingVolume3Month}</a></td>
                 <td><a href="#">{stock.adReturnStd3Month}</a></td>
@@ -987,7 +986,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
               <td>
                 {news.tickers.map((ticker, index) => (
                   <React.Fragment key={ticker}>
-                    <a href="#" className="ticker-link">{ticker}</a>
+                    <Link to={`/stock/${ticker}`} className="ticker-link">{ticker}</Link>
                     {index < news.tickers.length - 1 && ', '}
                   </React.Fragment>
                 ))}

@@ -26,6 +26,10 @@ class BasicFinancialsResponse(BaseModel):
     class Config:
         from_attributes = True
         populate_by_name = True
+        json_encoders = {
+            # Handle MongoDB ObjectId serialization
+            "ObjectId": str,
+        }
 
 
 class BasicFinancialsListResponse(BaseModel):
