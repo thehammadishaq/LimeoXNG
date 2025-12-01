@@ -100,6 +100,17 @@
   transition: all 0.2s;
 }
 
+/* Hide number input spinners */
+.filter-item input[type="number"]::-webkit-inner-spin-button,
+.filter-item input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.filter-item input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .filter-item select:hover,
 .filter-item input[type="number"]:hover {
   border-color: var(--link-color);
@@ -110,6 +121,40 @@
   outline: none;
   border-color: var(--link-color);
   box-shadow: 0 0 2px rgba(0, 136, 204, 0.3);
+}
+
+/* Operator Select Styling */
+.filter-item .operator-select {
+  margin-top: 0px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  background-color: var(--bg-primary);
+  color: var(--link-color) !important;
+  font-size: 11px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.filter-item .operator-select:hover {
+  border-color: var(--link-color);
+  background-color: var(--bg-primary);
+  color: var(--link-color) !important;
+}
+
+.filter-item .operator-select:focus {
+  outline: none;
+  border-color: var(--link-color);
+  box-shadow: 0 0 2px rgba(0, 136, 204, 0.3);
+  background-color: var(--bg-primary);
+  color: var(--link-color) !important;
+}
+
+.filter-item .operator-select option {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 4px;
 }
 
 .filter-separator {

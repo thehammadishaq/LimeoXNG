@@ -194,6 +194,18 @@ async def get_screener_symbols(request: ScreenerSymbolsRequest):
     # 1) Build BasicFinancials-based filter (valuation, profitability, growth, etc.)
     bf_query: Dict[str, Any] = {}
 
+    # Map operator strings to MongoDB operators
+    def get_mongo_operator(op: str) -> str:
+        operator_map = {
+            "lte": "$lte",
+            "lt": "$lt",
+            "gte": "$gte",
+            "gt": "$gt",
+            "eq": "$eq",
+            "ne": "$ne"
+        }
+        return operator_map.get(op, "$gte")  # Default to gte if invalid
+
     def add_bf_lte(metric_key: str, filter_key: str):
         raw = filters.get(filter_key)
         val = _parse_float(raw)
@@ -209,50 +221,60 @@ async def get_screener_symbols(request: ScreenerSymbolsRequest):
             bf_query.setdefault(f"data.metric.{metric_key}", {})
             bf_query[f"data.metric.{metric_key}"]["$gte"] = threshold
 
-    # --- Valuation (numeric, not %)
-    add_bf_lte("peTTM", "peMax")
-    add_bf_lte("forwardPE", "forwardPeMax")
-    add_bf_lte("pegTTM", "pegMax")
-    add_bf_lte("pb", "pbMax")
+    def add_bf_with_operator(metric_key: str, filter_key: str, operator_key: str, is_percent: bool = False, default_operator: str = "gte"):
+        raw = filters.get(filter_key)
+        val = _parse_float(raw)
+        if val is not None:
+            threshold = val / 100.0 if is_percent else val
+            operator = filters.get(operator_key, default_operator)
+            mongo_op = get_mongo_operator(operator)
+            bf_query.setdefault(f"data.metric.{metric_key}", {})
+            bf_query[f"data.metric.{metric_key}"][mongo_op] = threshold
+
+    # --- Valuation (numeric, not %) - with operators
+    add_bf_with_operator("peTTM", "peMax", "peOperator", is_percent=False, default_operator="lte")
+    add_bf_with_operator("forwardPE", "forwardPeMax", "forwardPeOperator", is_percent=False, default_operator="lte")
+    add_bf_with_operator("pegTTM", "pegMax", "pegOperator", is_percent=False, default_operator="lte")
+    add_bf_with_operator("pb", "pbMax", "pbOperator", is_percent=False, default_operator="lte")
     # Prefer psTTM, fall back to psAnnual in frontend; here we use psTTM
-    add_bf_lte("psTTM", "psMax")
-    add_bf_lte("evEbitdaTTM", "evEbitdaMax")
+    add_bf_with_operator("psTTM", "psMax", "psOperator", is_percent=False, default_operator="lte")
+    add_bf_with_operator("evEbitdaTTM", "evEbitdaMax", "evEbitdaOperator", is_percent=False, default_operator="lte")
 
-    # --- Profitability (percent metrics)
-    add_bf_gte("netProfitMarginTTM", "netMarginMin", is_percent=True)
-    add_bf_gte("operatingMarginTTM", "operMarginMin", is_percent=True)
-    add_bf_gte("grossMarginTTM", "grossMarginMin", is_percent=True)
-    add_bf_gte("roeTTM", "roeMin", is_percent=True)
-    add_bf_gte("roaTTM", "roaMin", is_percent=True)
-    add_bf_gte("roicTTM", "roiMin", is_percent=True)
+    # --- Profitability (percent metrics) - with operators
+    add_bf_with_operator("netProfitMarginTTM", "netMarginMin", "netMarginOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("operatingMarginTTM", "operMarginMin", "operMarginOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("grossMarginTTM", "grossMarginMin", "grossMarginOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("roeTTM", "roeMin", "roeOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("roaTTM", "roaMin", "roaOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("roicTTM", "roiMin", "roiOperator", is_percent=True, default_operator="gte")
 
-    # --- Growth (percent)
-    add_bf_gte("revenueGrowthTTMYoy", "revGrowthYoyMin", is_percent=True)
-    add_bf_gte("revenueGrowth3Y", "revGrowth3YMin", is_percent=True)
-    add_bf_gte("revenueGrowth5Y", "revGrowth5YMin", is_percent=True)
-    add_bf_gte("epsGrowthTTMYoy", "epsGrowthYoyMin", is_percent=True)
-    add_bf_gte("epsGrowth3Y", "epsGrowth3YMin", is_percent=True)
-    add_bf_gte("epsGrowth5Y", "epsGrowth5YMin", is_percent=True)
-    # Cash Flow Growth / EBITDA Growth (5Y CAGR)
-    add_bf_gte("focfCagr5Y", "cashFlowGrowthMin", is_percent=True)
-    add_bf_gte("ebitdaCagr5Y", "ebitdaGrowthMin", is_percent=True)
+    # --- Growth (percent) - with operators
+    add_bf_with_operator("revenueGrowthTTMYoy", "revGrowthYoyMin", "revGrowthYoyOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("revenueGrowth3Y", "revGrowth3YMin", "revGrowth3YOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("revenueGrowth5Y", "revGrowth5YMin", "revGrowth5YOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("epsGrowthTTMYoy", "epsGrowthYoyMin", "epsGrowthYoyOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("epsGrowth3Y", "epsGrowth3YMin", "epsGrowth3YOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("epsGrowth5Y", "epsGrowth5YMin", "epsGrowth5YOperator", is_percent=True, default_operator="gte")
+    # Cash Flow Growth / EBITDA Growth (5Y CAGR) - with operators
+    add_bf_with_operator("focfCagr5Y", "cashFlowGrowthMin", "cashFlowGrowthOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("ebitdaCagr5Y", "ebitdaGrowthMin", "ebitdaGrowthOperator", is_percent=True, default_operator="gte")
 
-    # --- Cash Flow (numeric)
-    add_bf_gte("freeCashFlowPerShareTTM", "fcfPerShareMin", is_percent=False)
-    add_bf_lte("currentEv/freeCashFlowTTM", "evFcfMax")
+    # --- Cash Flow (numeric) - with operators
+    add_bf_with_operator("freeCashFlowPerShareTTM", "fcfPerShareMin", "fcfPerShareOperator", is_percent=False, default_operator="gte")
+    add_bf_with_operator("currentEv/freeCashFlowTTM", "evFcfMax", "evFcfOperator", is_percent=False, default_operator="lte")
 
-    # --- Financial Health
-    add_bf_lte("totalDebtToEquity", "deRatioMax")
-    add_bf_gte("netInterestCoverageAnnual", "interestCoverageMin")
-    add_bf_gte("currentRatioAnnual", "currentRatioMin")
-    add_bf_gte("quickRatioAnnual", "quickRatioMin")
+    # --- Financial Health - with operators
+    add_bf_with_operator("totalDebtToEquity", "deRatioMax", "deRatioOperator", is_percent=False, default_operator="lte")
+    add_bf_with_operator("netInterestCoverageAnnual", "interestCoverageMin", "interestCoverageOperator", is_percent=False, default_operator="gte")
+    add_bf_with_operator("currentRatioAnnual", "currentRatioMin", "currentRatioOperator", is_percent=False, default_operator="gte")
+    add_bf_with_operator("quickRatioAnnual", "quickRatioMin", "quickRatioOperator", is_percent=False, default_operator="gte")
 
-    # --- Price Strength (percent)
-    add_bf_gte("yearToDatePriceReturnDaily", "ytdReturnMin", is_percent=True)
-    add_bf_gte("5DayPriceReturnDaily", "return5DMin", is_percent=True)
-    add_bf_gte("monthToDatePriceReturnDaily", "return1MMin", is_percent=True)
-    add_bf_gte("13WeekPriceReturnDaily", "return3MMin", is_percent=True)
-    add_bf_gte("priceRelativeToS&P50052Week", "relSp5001YMin", is_percent=True)
+    # --- Price Strength (percent) - with operators
+    add_bf_with_operator("yearToDatePriceReturnDaily", "ytdReturnMin", "ytdReturnOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("5DayPriceReturnDaily", "return5DMin", "return5DOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("monthToDatePriceReturnDaily", "return1MMin", "return1MOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("13WeekPriceReturnDaily", "return3MMin", "return3MOperator", is_percent=True, default_operator="gte")
+    add_bf_with_operator("priceRelativeToS&P50052Week", "relSp5001YMin", "relSp5001YOperator", is_percent=True, default_operator="gte")
 
     # Execute BasicFinancials query (if any)
     ticker_set: Optional[Set[str]] = None
@@ -263,15 +285,19 @@ async def get_screener_symbols(request: ScreenerSymbolsRequest):
         ticker_set = {doc.ticker for doc in bf_docs}
 
     # 2) Latest 1‑minute candle filters
-    latest_close_min = _parse_float(filters.get("latestCloseMin"))
-    latest_volume_min = _parse_float(filters.get("latestVolumeMin"))
+    latest_close_value = _parse_float(filters.get("latestCloseMin"))
+    latest_volume_value = _parse_float(filters.get("latestVolumeMin"))
+    latest_close_operator = filters.get("latestCloseOperator", "lte")
+    latest_volume_operator = filters.get("latestVolumeOperator", "lte")
 
-    if latest_close_min is not None or latest_volume_min is not None:
+    if latest_close_value is not None or latest_volume_value is not None:
         lc_query: Dict[str, Any] = {"resolution": "D"}
-        if latest_close_min is not None:
-            lc_query["close"] = {"$lte": latest_close_min}
-        if latest_volume_min is not None:
-            lc_query["volume"] = {"$lte": latest_volume_min}
+        if latest_close_value is not None:
+            mongo_op = get_mongo_operator(latest_close_operator)
+            lc_query["close"] = {mongo_op: latest_close_value}
+        if latest_volume_value is not None:
+            mongo_op = get_mongo_operator(latest_volume_operator)
+            lc_query["volume"] = {mongo_op: latest_volume_value}
 
         cursor = LatestCandle.find(lc_query)
         lc_docs = await cursor.to_list()

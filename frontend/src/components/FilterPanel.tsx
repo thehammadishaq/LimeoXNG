@@ -29,22 +29,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             P/E (TTM)
             <span
               className="tooltip-icon"
-              title={`Price-to-Earnings (TTM) shows how much investors are willing to pay per dollar of the company’s earnings over the last 12 months.\nA lower P/E may indicate undervaluation, while a higher P/E can mean growth expectations or overvaluation.`}
+              title={`Price-to-Earnings (TTM) shows how much investors are willing to pay per dollar of the company's earnings over the last 12 months.\nA lower P/E may indicate undervaluation, while a higher P/E can mean growth expectations or overvaluation.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
+          step="0.1"
           value={filters.peMax ?? ''}
           onChange={(e) => handleFilterChange('peMax', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.peOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('peOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="10">Under 10</option>
-          <option value="15">Under 15</option>
-          <option value="20">Under 20</option>
-          <option value="25">Under 25</option>
-          <option value="30">Under 30</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
@@ -60,16 +68,24 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
+          step="0.1"
           value={filters.forwardPeMax ?? ''}
           onChange={(e) => handleFilterChange('forwardPeMax', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.forwardPeOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('forwardPeOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="10">Under 10</option>
-          <option value="15">Under 15</option>
-          <option value="20">Under 20</option>
-          <option value="25">Under 25</option>
-          <option value="30">Under 30</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
@@ -79,21 +95,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             PEG Ratio
             <span
               className="tooltip-icon"
-              title={`Price/Earnings-to-Growth (PEG) Ratio adjusts the P/E ratio based on the company’s expected earnings growth rate.\nA PEG under about 1.5 often suggests the stock may be undervalued relative to its growth potential.`}
+              title={`Price/Earnings-to-Growth (PEG) Ratio adjusts the P/E ratio based on the company's expected earnings growth rate.\nA PEG under about 1.5 often suggests the stock may be undervalued relative to its growth potential.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
+          step="0.1"
           value={filters.pegMax ?? ''}
           onChange={(e) => handleFilterChange('pegMax', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.pegOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('pegOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="1">Under 1</option>
-          <option value="1.5">Under 1.5</option>
-          <option value="2">Under 2</option>
-          <option value="3">Under 3</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
@@ -103,22 +128,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             P/B
             <span
               className="tooltip-icon"
-              title={`Price-to-Book (P/B) compares the company’s market value to its book value (net assets).\nA lower P/B can signal undervaluation, especially for asset-heavy businesses.`}
+              title={`Price-to-Book (P/B) compares the company's market value to its book value (net assets).\nA lower P/B can signal undervaluation, especially for asset-heavy businesses.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
+          step="0.1"
           value={filters.pbMax ?? ''}
           onChange={(e) => handleFilterChange('pbMax', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.pbOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('pbOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="1">Under 1</option>
-          <option value="2">Under 2</option>
-          <option value="3">Under 3</option>
-          <option value="5">Under 5</option>
-          <option value="10">Under 10</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
@@ -134,16 +167,24 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
+          step="0.1"
           value={filters.psMax ?? ''}
           onChange={(e) => handleFilterChange('psMax', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.psOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('psOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="1">Under 1</option>
-          <option value="2">Under 2</option>
-          <option value="3">Under 3</option>
-          <option value="5">Under 5</option>
-          <option value="10">Under 10</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
@@ -159,15 +200,24 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
+          step="0.1"
           value={filters.evEbitdaMax ?? ''}
           onChange={(e) => handleFilterChange('evEbitdaMax', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.evEbitdaOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('evEbitdaOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="8">Under 8</option>
-          <option value="12">Under 12</option>
-          <option value="16">Under 16</option>
-          <option value="20">Under 20</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
     </div>
@@ -182,7 +232,7 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Net Profit Margin (Min)
+            Net Profit Margin
             <span
               className="tooltip-icon"
               title={`Net Profit Margin shows how much of each dollar of revenue is kept as net income after all expenses.\nHigher margins generally indicate a more profitable, efficient business.`}
@@ -191,22 +241,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
           value={filters.netMarginMin ?? ''}
           onChange={(e) => handleFilterChange('netMarginMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.netMarginOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('netMarginOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
-          <option value="20">Over 20%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Operating Margin (Min)
+            Operating Margin
             <span
               className="tooltip-icon"
               title={`Operating Margin measures profit after operating expenses but before interest and taxes.\nIt shows how efficiently the core business is run.`}
@@ -215,22 +273,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
           value={filters.operMarginMin ?? ''}
           onChange={(e) => handleFilterChange('operMarginMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.operMarginOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('operMarginOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
-          <option value="20">Over 20%</option>
-          <option value="25">Over 25%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Gross Margin (Min)
+            Gross Margin
             <span
               className="tooltip-icon"
               title={`Gross Margin shows profit after direct production or service costs.\nHigher gross margins mean the company has more room to cover overhead and still earn profit.`}
@@ -239,46 +305,62 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
           value={filters.grossMarginMin ?? ''}
           onChange={(e) => handleFilterChange('grossMarginMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.grossMarginOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('grossMarginOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="20">Over 20%</option>
-          <option value="30">Over 30%</option>
-          <option value="40">Over 40%</option>
-          <option value="50">Over 50%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            ROE (Min)
+            ROE
             <span
               className="tooltip-icon"
-              title={`Return on Equity (ROE) shows how effectively the company generates profit from shareholders’ equity.\nMany investors look for ROE above about 15% as a sign of strong profitability.`}
+              title={`Return on Equity (ROE) shows how effectively the company generates profit from shareholders' equity.\nMany investors look for ROE above about 15% as a sign of strong profitability.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.roeMin ?? ''}
           onChange={(e) => handleFilterChange('roeMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.roeOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('roeOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
-          <option value="20">Over 20%</option>
-          <option value="25">Over 25%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            ROA (Min)
+            ROA
             <span
               className="tooltip-icon"
               title={`Return on Assets (ROA) shows how efficiently the company uses its assets to generate profit.\nAs a rough guide, ROA above about 8% is often considered healthy for many industries.`}
@@ -287,22 +369,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.roaMin ?? ''}
           onChange={(e) => handleFilterChange('roaMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.roaOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('roaOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="5">Over 5%</option>
-          <option value="8">Over 8%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            ROI (Min)
+            ROI
             <span
               className="tooltip-icon"
               title={`Return on Investment (ROI) captures how much profit the company generates relative to the capital invested.\nHigher ROI indicates better capital allocation and more efficient use of resources.`}
@@ -311,15 +401,23 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
           value={filters.roiMin ?? ''}
           onChange={(e) => handleFilterChange('roiMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.roiOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('roiOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
-          <option value="20">Over 20%</option>
-          <option value="25">Over 25%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
     </div>
@@ -334,32 +432,39 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Revenue Growth YoY (Min)
+            Revenue Growth YoY
             <span
               className="tooltip-icon"
-              title={`Revenue Growth YoY measures how quickly the company’s sales are growing versus the same period a year ago.\nConsistently positive growth suggests the business is expanding rather than shrinking.`}
+              title={`Revenue Growth YoY measures how quickly the company's sales are growing versus the same period a year ago.\nConsistently positive growth suggests the business is expanding rather than shrinking.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.revGrowthYoyMin ?? ''}
           onChange={(e) => handleFilterChange('revGrowthYoyMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.revGrowthYoyOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('revGrowthYoyOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
-          <option value="20">Over 20%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Revenue Growth 3Y CAGR (Min)
+            Revenue Growth 3Y CAGR
             <span
               className="tooltip-icon"
               title={`Revenue Growth 3Y shows the compound annual growth rate of sales over the last three years.\nIt smooths out short-term noise and highlights medium-term growth trends.`}
@@ -368,22 +473,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.revGrowth3YMin ?? ''}
           onChange={(e) => handleFilterChange('revGrowth3YMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.revGrowth3YOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('revGrowth3YOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="3">Over 3%</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Revenue Growth 5Y CAGR (Min)
+            Revenue Growth 5Y CAGR
             <span
               className="tooltip-icon"
               title={`Revenue Growth 5Y shows how fast sales have grown per year on average over the last five years.\nHigher long-term growth can signal a durable, expanding business.`}
@@ -392,23 +505,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.revGrowth5YMin ?? ''}
           onChange={(e) => handleFilterChange('revGrowth5YMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.revGrowth5YOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('revGrowth5YOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="3">Over 3%</option>
-          <option value="5">Over 5%</option>
-          <option value="8">Over 8%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            EPS Growth YoY (Min)
+            EPS Growth YoY
             <span
               className="tooltip-icon"
               title={`EPS Growth YoY tracks how quickly earnings per share are growing compared to last year.\nPositive EPS growth suggests improving profitability for shareholders.`}
@@ -417,23 +537,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.epsGrowthYoyMin ?? ''}
           onChange={(e) => handleFilterChange('epsGrowthYoyMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.epsGrowthYoyOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('epsGrowthYoyOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
-          <option value="20">Over 20%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            EPS Growth 3Y CAGR (Min)
+            EPS Growth 3Y CAGR
             <span
               className="tooltip-icon"
               title={`EPS Growth 3Y shows the compound annual growth rate of earnings per share over three years.\nIt helps you see whether earnings are trending up over a full cycle, not just one year.`}
@@ -442,23 +569,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.epsGrowth3YMin ?? ''}
           onChange={(e) => handleFilterChange('epsGrowth3YMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.epsGrowth3YOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('epsGrowth3YOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="3">Over 3%</option>
-          <option value="5">Over 5%</option>
-          <option value="8">Over 8%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            EPS Growth 5Y CAGR (Min)
+            EPS Growth 5Y CAGR
             <span
               className="tooltip-icon"
               title={`EPS Growth 5Y focuses on long-term earnings power.\nCompanies with solid 5-year EPS growth often compound shareholder value over time.`}
@@ -467,23 +601,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.epsGrowth5YMin ?? ''}
           onChange={(e) => handleFilterChange('epsGrowth5YMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.epsGrowth5YOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('epsGrowth5YOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="5">Over 5%</option>
-          <option value="8">Over 8%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
-          <option value="20">Over 20%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Cash Flow Growth 5Y (Min)
+            Cash Flow Growth 5Y
             <span
               className="tooltip-icon"
               title={`Cash Flow Growth (often measured via free cash flow CAGR) shows how fast real cash generation is increasing.\nPositive and rising cash flow growth supports dividends, buybacks, and reinvestment.`}
@@ -492,22 +633,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.cashFlowGrowthMin ?? ''}
           onChange={(e) => handleFilterChange('cashFlowGrowthMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.cashFlowGrowthOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('cashFlowGrowthOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            EBITDA Growth 5Y (Min)
+            EBITDA Growth 5Y
             <span
               className="tooltip-icon"
               title={`EBITDA Growth 5Y tracks the long-term growth of operating earnings before interest, taxes, depreciation and amortization.\nStronger EBITDA growth usually points to a business that is scaling successfully.`}
@@ -516,15 +665,23 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
           value={filters.ebitdaGrowthMin ?? ''}
           onChange={(e) => handleFilterChange('ebitdaGrowthMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.ebitdaGrowthOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('ebitdaGrowthOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
     </div>
@@ -539,32 +696,40 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Debt / Equity (Max)
+            Debt / Equity
             <span
               className="tooltip-icon"
-              title={`Debt-to-Equity (D/E) compares total debt to shareholders’ equity.\nLower D/E usually means a safer balance sheet; very high D/E can signal higher financial risk.`}
+              title={`Debt-to-Equity (D/E) compares total debt to shareholders' equity.\nLower D/E usually means a safer balance sheet; very high D/E can signal higher financial risk.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
+          step="0.1"
           value={filters.deRatioMax ?? ''}
           onChange={(e) => handleFilterChange('deRatioMax', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.deRatioOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('deRatioOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0.3">Under 0.3</option>
-          <option value="0.5">Under 0.5</option>
-          <option value="0.6">Under 0.6</option>
-          <option value="1">Under 1.0</option>
-          <option value="2">Under 2.0</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Interest Coverage (Min)
+            Interest Coverage
             <span
               className="tooltip-icon"
               title={`Interest Coverage Ratio shows how easily the company can pay interest from operating earnings.\nValues above about 5x are generally considered comfortable, while very low values can be a warning sign.`}
@@ -573,22 +738,31 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
+          step="0.1"
           value={filters.interestCoverageMin ?? ''}
           onChange={(e) => handleFilterChange('interestCoverageMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.interestCoverageOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('interestCoverageOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="3">Over 3x</option>
-          <option value="5">Over 5x</option>
-          <option value="8">Over 8x</option>
-          <option value="10">Over 10x</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Current Ratio (Min)
+            Current Ratio
             <span
               className="tooltip-icon"
               title={`Current Ratio compares current assets to current liabilities.\nValues above about 1.5 are often seen as a sign of comfortable short‑term liquidity (not too tight).`}
@@ -597,22 +771,31 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
+          step="0.1"
           value={filters.currentRatioMin ?? ''}
           onChange={(e) => handleFilterChange('currentRatioMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.currentRatioOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('currentRatioOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="1">Over 1.0</option>
-          <option value="1.5">Over 1.5</option>
-          <option value="2">Over 2.0</option>
-          <option value="3">Over 3.0</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Quick Ratio (Min)
+            Quick Ratio
             <span
               className="tooltip-icon"
               title={`Quick Ratio is a stricter liquidity test that excludes inventory.\nA quick ratio above 1 generally means the company can cover short‑term obligations with its most liquid assets.`}
@@ -621,15 +804,24 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
+          step="0.1"
           value={filters.quickRatioMin ?? ''}
           onChange={(e) => handleFilterChange('quickRatioMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.quickRatioOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('quickRatioOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0.8">Over 0.8</option>
-          <option value="1">Over 1.0</option>
-          <option value="1.5">Over 1.5</option>
-          <option value="2">Over 2.0</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
     </div>
@@ -644,7 +836,7 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Free Cash Flow Per Share (Min)
+            Free Cash Flow Per Share
             <span
               className="tooltip-icon"
               title={`Free Cash Flow Per Share shows how much real cash the business generates for each share.\nHigher FCF per share gives the company more flexibility for dividends, buybacks and reinvestment.`}
@@ -653,64 +845,87 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.fcfPerShareMin ?? ''}
           onChange={(e) => handleFilterChange('fcfPerShareMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.fcfPerShareOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('fcfPerShareOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Over 0</option>
-          <option value="1">Over 1</option>
-          <option value="2">Over 2</option>
-          <option value="5">Over 5</option>
-          <option value="10">Over 10</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            EV / Free Cash Flow (Max)
+            EV / Free Cash Flow
             <span
               className="tooltip-icon"
-              title={`EV / Free Cash Flow compares the company’s enterprise value to the free cash it generates each year.\nLower EV/FCF multiples (for example under 20–25x) can indicate more attractive cash-flow valuation.`}
+              title={`EV / Free Cash Flow compares the company's enterprise value to the free cash it generates each year.\nLower EV/FCF multiples (for example under 20–25x) can indicate more attractive cash-flow valuation.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.evFcfMax ?? ''}
           onChange={(e) => handleFilterChange('evFcfMax', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.evFcfOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('evFcfOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="15">Under 15</option>
-          <option value="20">Under 20</option>
-          <option value="25">Under 25</option>
-          <option value="30">Under 30</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            FCF Growth 5Y (Min)
+            FCF Growth 5Y
             <span
               className="tooltip-icon"
-              title={`Free Cash Flow Growth (5Y) shows how fast the company’s free cash flow is compounding over time.\nPositive and solid FCF growth supports long‑term value creation.`}
+              title={`Free Cash Flow Growth (5Y) shows how fast the company's free cash flow is compounding over time.\nPositive and solid FCF growth supports long‑term value creation.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select
+        <input
+          type="number"
           value={filters.cashFlowGrowthMin ?? ''}
           onChange={(e) => handleFilterChange('cashFlowGrowthMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.cashFlowGrowthOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('cashFlowGrowthOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
     </div>
@@ -725,7 +940,7 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            YTD Return (Min)
+            YTD Return
             <span
               className="tooltip-icon"
               title={`Year-to-Date (YTD) Return shows how much the stock price has moved since the start of the year.\nPositive and higher YTD returns often indicate a strong ongoing trend.`}
@@ -734,23 +949,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.ytdReturnMin ?? ''}
           onChange={(e) => handleFilterChange('ytdReturnMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.ytdReturnOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('ytdReturnOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="20">Over 20%</option>
-          <option value="30">Over 30%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            5 Day Return (Min)
+            5 Day Return
             <span
               className="tooltip-icon"
               title={`5 Day Return focuses on very short-term momentum.\nUseful for traders looking for stocks that have recently started moving up.`}
@@ -759,46 +981,62 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.return5DMin ?? ''}
           onChange={(e) => handleFilterChange('return5DMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.return5DOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('return5DOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="2">Over 2%</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            1 Month Return (Min)
+            1 Month Return
             <span
               className="tooltip-icon"
-              title={`1 Month Return shows the stock’s move over the last month.\nHelps identify names in a clear short-term uptrend rather than just a single spike.`}
+              title={`1 Month Return shows the stock's move over the last month.\nHelps identify names in a clear short-term uptrend rather than just a single spike.`}
             >
               ?
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.return1MMin ?? ''}
           onChange={(e) => handleFilterChange('return1MMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.return1MOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('return1MOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="15">Over 15%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            3 Month Return (Min)
+            3 Month Return
             <span
               className="tooltip-icon"
               title={`3 Month Return focuses on the intermediate trend.\nStocks with strong 3‑month performance are often in sustained uptrends rather than short squeezes.`}
@@ -807,22 +1045,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.return3MMin ?? ''}
           onChange={(e) => handleFilterChange('return3MMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.return3MOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('return3MOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Positive (&gt; 0%)</option>
-          <option value="5">Over 5%</option>
-          <option value="10">Over 10%</option>
-          <option value="20">Over 20%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Rel. to S&amp;P 500 (1Y, Min)
+            Rel. to S&amp;P 500 (1Y)
             <span
               className="tooltip-icon"
               title={`Price Relative to S&P 500 (1 Year) shows how the stock has performed versus the index.\nPositive values mean the stock has outperformed the S&P 500 over the last year.`}
@@ -831,15 +1077,23 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             </span>
           </span>
         </label>
-        <select 
+        <input
+          type="number"
           value={filters.relSp5001YMin ?? ''}
           onChange={(e) => handleFilterChange('relSp5001YMin', e.target.value)}
+          placeholder="Any"
+        />
+        <select
+          className="operator-select"
+          value={filters.relSp5001YOperator ?? 'gte'}
+          onChange={(e) => handleFilterChange('relSp5001YOperator', e.target.value)}
         >
-          <option value="">Any</option>
-          <option value="0">Outperforming (&gt; 0%)</option>
-          <option value="5">Outperform &gt; 5%</option>
-          <option value="10">Outperform &gt; 10%</option>
-          <option value="20">Outperform &gt; 20%</option>
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
         </select>
       </div>
     </div>
@@ -862,7 +1116,7 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Close Price (Min)
+            Close Price
             <span
               className="tooltip-icon"
               title={`Close price from the latest 1‑minute candle.\nIn future, this will let you keep only stocks trading above a certain intraday price level.`}
@@ -877,12 +1131,24 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('latestCloseMin', e.target.value)}
           placeholder="Any"
         />
+        <select
+          className="operator-select"
+          value={filters.latestCloseOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('latestCloseOperator', e.target.value)}
+        >
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
+        </select>
       </div>
 
       <div className="filter-item">
         <label>
           <span className="filter-label-with-tooltip">
-            Volume (Min)
+            Volume
             <span
               className="tooltip-icon"
               title={`Volume in shares for the latest 1‑minute candle.\nIn future, this will help you find candles with unusually high intraday volume.`}
@@ -897,6 +1163,18 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('latestVolumeMin', e.target.value)}
           placeholder="Any"
         />
+        <select
+          className="operator-select"
+          value={filters.latestVolumeOperator ?? 'lte'}
+          onChange={(e) => handleFilterChange('latestVolumeOperator', e.target.value)}
+        >
+          <option value="lte">Less than or equal (≤)</option>
+          <option value="lt">Less than (&lt;)</option>
+          <option value="gte">Greater than or equal (≥)</option>
+          <option value="gt">Greater than (&gt;)</option>
+          <option value="eq">Equal (=)</option>
+          <option value="ne">Not equal (≠)</option>
+        </select>
       </div>
     </div>
   );
