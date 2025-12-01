@@ -8,6 +8,8 @@ These endpoints read data ONLY from MongoDB collections:
 No direct Finnhub API calls are made here.
 """
 from fastapi import APIRouter, HTTPException, Query, status
+from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Optional, Set
 
 from schemas.company_profile import (
     CompanyProfileResponse,
@@ -40,6 +42,9 @@ from models.finnhub.company_news import (
 )
 from services.symbols_cache_service import SymbolsCacheService
 from models.cron_profile_cache import ProfileCacheCronRun
+from models.stock_candles import LatestCandle
+from models.company_profile import CompanyProfile
+from models.basic_financials import BasicFinancials
 
 
 router = APIRouter(prefix="/db", tags=["Database Read-Only"])
@@ -113,6 +118,247 @@ async def list_profiles_from_db(
         page=page,
         page_size=page_size,
     )
+
+
+# ---------- Screener Symbols (server-side filtering) ----------
+
+
+class ScreenerSymbolsRequest(BaseModel):
+    """
+    Request payload for screener symbol filtering.
+
+    The `filters` dict is expected to mirror the frontend Screener filters object,
+    e.g. keys like: peMax, forwardPeMax, pegMax, pbMax, psMax, evEbitdaMax,
+    netMarginMin, roeMin, ytdReturnMin, latestCloseMin, latestVolumeMin, etc.
+    Empty-string values are treated as "no filter".
+    """
+
+    filters: Dict[str, Any] = Field(
+        default_factory=dict, description="Raw filters object from frontend Screener"
+    )
+    search: Optional[str] = Field(
+        None, description="Search term to filter tickers by ticker symbol or company name"
+    )
+
+
+class ScreenerSymbolsResponse(BaseModel):
+    """Response with the list of tickers matching the filters."""
+
+    symbols: List[str]
+    total: int
+
+
+def _parse_float(value: Any) -> Optional[float]:
+    """Best-effort conversion of incoming filter value to float."""
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    try:
+        s = str(value).strip()
+        if not s:
+          return None
+        # Remove non-numeric characters commonly used in UI (%, commas, spaces)
+        import re
+
+        cleaned = re.sub(r"[^0-9.+-]", "", s)
+        if not cleaned:
+            return None
+        return float(cleaned)
+    except Exception:
+        return None
+
+
+@router.post(
+    "/screener-symbols",
+    response_model=ScreenerSymbolsResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_screener_symbols(request: ScreenerSymbolsRequest):
+    """
+    Server-side screener filtering endpoint.
+
+    This endpoint reads from MongoDB only (no Finnhub calls) and returns
+    the list of **tickers** that match the provided filters across:
+
+    - Basic Financials metrics (collection: finnhub-basic-financials)
+    - Company profiles (collection: finnhub-profile2)
+    - Latest 1‑minute candles (collection: finnhub-latest-candles)
+
+    Frontend can then paginate these symbols and fetch per-symbol profile +
+    financials via existing DB endpoints.
+    """
+
+    filters = request.filters or {}
+
+    # 1) Build BasicFinancials-based filter (valuation, profitability, growth, etc.)
+    bf_query: Dict[str, Any] = {}
+
+    def add_bf_lte(metric_key: str, filter_key: str):
+        raw = filters.get(filter_key)
+        val = _parse_float(raw)
+        if val is not None:
+            bf_query.setdefault(f"data.metric.{metric_key}", {})
+            bf_query[f"data.metric.{metric_key}"]["$lte"] = val
+
+    def add_bf_gte(metric_key: str, filter_key: str, is_percent: bool = False):
+        raw = filters.get(filter_key)
+        val = _parse_float(raw)
+        if val is not None:
+            threshold = val / 100.0 if is_percent else val
+            bf_query.setdefault(f"data.metric.{metric_key}", {})
+            bf_query[f"data.metric.{metric_key}"]["$gte"] = threshold
+
+    # --- Valuation (numeric, not %)
+    add_bf_lte("peTTM", "peMax")
+    add_bf_lte("forwardPE", "forwardPeMax")
+    add_bf_lte("pegTTM", "pegMax")
+    add_bf_lte("pb", "pbMax")
+    # Prefer psTTM, fall back to psAnnual in frontend; here we use psTTM
+    add_bf_lte("psTTM", "psMax")
+    add_bf_lte("evEbitdaTTM", "evEbitdaMax")
+
+    # --- Profitability (percent metrics)
+    add_bf_gte("netProfitMarginTTM", "netMarginMin", is_percent=True)
+    add_bf_gte("operatingMarginTTM", "operMarginMin", is_percent=True)
+    add_bf_gte("grossMarginTTM", "grossMarginMin", is_percent=True)
+    add_bf_gte("roeTTM", "roeMin", is_percent=True)
+    add_bf_gte("roaTTM", "roaMin", is_percent=True)
+    add_bf_gte("roicTTM", "roiMin", is_percent=True)
+
+    # --- Growth (percent)
+    add_bf_gte("revenueGrowthTTMYoy", "revGrowthYoyMin", is_percent=True)
+    add_bf_gte("revenueGrowth3Y", "revGrowth3YMin", is_percent=True)
+    add_bf_gte("revenueGrowth5Y", "revGrowth5YMin", is_percent=True)
+    add_bf_gte("epsGrowthTTMYoy", "epsGrowthYoyMin", is_percent=True)
+    add_bf_gte("epsGrowth3Y", "epsGrowth3YMin", is_percent=True)
+    add_bf_gte("epsGrowth5Y", "epsGrowth5YMin", is_percent=True)
+    # Cash Flow Growth / EBITDA Growth (5Y CAGR)
+    add_bf_gte("focfCagr5Y", "cashFlowGrowthMin", is_percent=True)
+    add_bf_gte("ebitdaCagr5Y", "ebitdaGrowthMin", is_percent=True)
+
+    # --- Cash Flow (numeric)
+    add_bf_gte("freeCashFlowPerShareTTM", "fcfPerShareMin", is_percent=False)
+    add_bf_lte("currentEv/freeCashFlowTTM", "evFcfMax")
+
+    # --- Financial Health
+    add_bf_lte("totalDebtToEquity", "deRatioMax")
+    add_bf_gte("netInterestCoverageAnnual", "interestCoverageMin")
+    add_bf_gte("currentRatioAnnual", "currentRatioMin")
+    add_bf_gte("quickRatioAnnual", "quickRatioMin")
+
+    # --- Price Strength (percent)
+    add_bf_gte("yearToDatePriceReturnDaily", "ytdReturnMin", is_percent=True)
+    add_bf_gte("5DayPriceReturnDaily", "return5DMin", is_percent=True)
+    add_bf_gte("monthToDatePriceReturnDaily", "return1MMin", is_percent=True)
+    add_bf_gte("13WeekPriceReturnDaily", "return3MMin", is_percent=True)
+    add_bf_gte("priceRelativeToS&P50052Week", "relSp5001YMin", is_percent=True)
+
+    # Execute BasicFinancials query (if any)
+    ticker_set: Optional[Set[str]] = None
+    if bf_query:
+        # Beanie projection on single fields can be tricky; fetch full docs and
+        # extract tickers in Python for simplicity and robustness.
+        bf_docs = await BasicFinancials.find(bf_query).to_list()
+        ticker_set = {doc.ticker for doc in bf_docs}
+
+    # 2) Latest 1‑minute candle filters
+    latest_close_min = _parse_float(filters.get("latestCloseMin"))
+    latest_volume_min = _parse_float(filters.get("latestVolumeMin"))
+
+    if latest_close_min is not None or latest_volume_min is not None:
+        lc_query: Dict[str, Any] = {"resolution": "D"}
+        if latest_close_min is not None:
+            lc_query["close"] = {"$lte": latest_close_min}
+        if latest_volume_min is not None:
+            lc_query["volume"] = {"$lte": latest_volume_min}
+
+        cursor = LatestCandle.find(lc_query)
+        lc_docs = await cursor.to_list()
+        lc_tickers = {doc.ticker for doc in lc_docs}
+
+        if ticker_set is None:
+            ticker_set = lc_tickers
+        else:
+            ticker_set &= lc_tickers
+
+    # 3) Sector / industry filters via CompanyProfile
+    sector = filters.get("sector")
+    industry = filters.get("industry")
+    has_sector_filter = sector and sector != "Any"
+    has_industry_filter = industry and industry != "Any"
+
+    if has_sector_filter or has_industry_filter:
+        cp_query: Dict[str, Any] = {}
+        and_clauses: List[Dict[str, Any]] = []
+
+        if has_sector_filter:
+            and_clauses.append(
+                {
+                    "$or": [
+                        {"data.gsector": sector},
+                        {"data.finnhubIndustry": sector},
+                    ]
+                }
+            )
+
+        if has_industry_filter:
+            and_clauses.append(
+                {
+                    "$or": [
+                        {"data.gind": industry},
+                        {"data.finnhubIndustry": industry},
+                    ]
+                }
+            )
+
+        if ticker_set is not None:
+            and_clauses.append({"ticker": {"$in": list(ticker_set)}})
+
+        if len(and_clauses) == 1:
+            cp_query = and_clauses[0]
+        else:
+            cp_query = {"$and": and_clauses}
+
+        cp_docs = await CompanyProfile.find(cp_query).to_list()
+        cp_tickers = {doc.ticker for doc in cp_docs}
+
+        if ticker_set is None:
+            ticker_set = cp_tickers
+        else:
+            ticker_set &= cp_tickers
+
+    # 4) If still no ticker set (no filters at all), default to all profiles tickers
+    if ticker_set is None:
+        all_profiles = await CompanyProfile.find_all().to_list()
+        ticker_set = {doc.ticker for doc in all_profiles}
+
+    # 5) Apply search filter (ticker symbol or company name)
+    search_term = request.search
+    if search_term and search_term.strip():
+        search_upper = search_term.strip().upper()
+        
+        # Filter by ticker symbol (case-insensitive)
+        ticker_matches = {t for t in ticker_set if search_upper in t.upper()}
+        
+        # Also search by company name from CompanyProfile
+        company_name_matches: Set[str] = set()
+        if ticker_set:
+            # Fetch profiles for tickers in current set
+            profile_query = {"ticker": {"$in": list(ticker_set)}}
+            matching_profiles = await CompanyProfile.find(profile_query).to_list()
+            # Filter by company name (case-insensitive)
+            for doc in matching_profiles:
+                company_name = (doc.data.get("name") or "").upper()
+                if search_upper in company_name:
+                    company_name_matches.add(doc.ticker)
+        
+        # Combine ticker and company name matches
+        ticker_set = ticker_matches | company_name_matches
+
+    symbols_sorted = sorted(ticker_set)
+
+    return ScreenerSymbolsResponse(symbols=symbols_sorted, total=len(symbols_sorted))
 
 
 @router.get(
@@ -502,9 +748,10 @@ async def get_latest_profile_cron_status():
     """
     Read-only endpoint to fetch the latest profile-cache cron job status from MongoDB.
 
-    Returns the most recent run from `cron_profile_cache_runs` with per-ticker statuses.
+    Returns the most recent run metadata with per-ticker statuses aggregated across ALL runs.
+    For each ticker, returns the most recent processed_at timestamp from any cron run.
     """
-    # Get most recent cron run by started_at
+    # Get most recent cron run by started_at (for metadata)
     latest_list = (
         await ProfileCacheCronRun.find()
         .sort(-ProfileCacheCronRun.started_at)
@@ -520,15 +767,58 @@ async def get_latest_profile_cron_status():
 
     latest = latest_list[0]
 
-    # Map document → response model
+    # Get all cron runs (sorted by started_at descending) to aggregate ticker data
+    # Limit to recent 100 runs to avoid performance issues
+    all_runs = (
+        await ProfileCacheCronRun.find()
+        .sort(-ProfileCacheCronRun.started_at)
+        .limit(100)
+        .to_list()
+    )
+
+    # Aggregate ticker data across all runs
+    # Key: ticker (uppercase), Value: {processed_at, ok, errors, run_started_at}
+    ticker_map: Dict[str, Dict[str, Any]] = {}
+
+    for run in all_runs:
+        for ticker_result in run.tickers:
+            ticker_upper = ticker_result.ticker.upper()
+            
+            # If ticker not seen before, or if this run has a more recent processed_at
+            if ticker_upper not in ticker_map:
+                ticker_map[ticker_upper] = {
+                    "ticker": ticker_result.ticker,
+                    "processed_at": ticker_result.processed_at,
+                    "ok": ticker_result.ok,
+                    "errors": ticker_result.errors,
+                    "run_started_at": run.started_at,
+                }
+            else:
+                # Update if this run's processed_at is more recent
+                existing = ticker_map[ticker_upper]
+                if ticker_result.processed_at > existing["processed_at"]:
+                    existing["processed_at"] = ticker_result.processed_at
+                    existing["ok"] = ticker_result.ok
+                    existing["errors"] = ticker_result.errors
+                    existing["run_started_at"] = run.started_at
+                # If same processed_at but this run is more recent, prefer its status
+                elif (
+                    ticker_result.processed_at == existing["processed_at"]
+                    and run.started_at > existing["run_started_at"]
+                ):
+                    existing["ok"] = ticker_result.ok
+                    existing["errors"] = ticker_result.errors
+                    existing["run_started_at"] = run.started_at
+
+    # Convert to list of CronTickerStatus, sorted by ticker
     ticker_statuses = [
         CronTickerStatus(
-            ticker=t.ticker,
-            ok=t.ok,
-            errors=t.errors,
-            processed_at=t.processed_at,
+            ticker=data["ticker"],
+            ok=data["ok"],
+            errors=data["errors"],
+            processed_at=data["processed_at"],
         )
-        for t in latest.tickers
+        for _, data in sorted(ticker_map.items())
     ]
 
     return CronProfileStatusResponse(
@@ -543,4 +833,105 @@ async def get_latest_profile_cron_status():
         failed=latest.failed,
         tickers=ticker_statuses,
     )
+
+
+@router.get(
+    "/cron/profile-status/{job_id}",
+    response_model=CronProfileStatusResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_profile_cron_status_by_id(job_id: str):
+    """
+    Get status of a specific profile-cache cron job by job_id.
+    Useful for polling real-time updates while job is running.
+    """
+    from bson import ObjectId
+
+    try:
+        obj_id = ObjectId(job_id)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid job_id format: {job_id}",
+        )
+
+    cron_run = await ProfileCacheCronRun.get(obj_id)
+
+    if not cron_run:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Cron job with id {job_id} not found.",
+        )
+
+    # Map document → response model
+    ticker_statuses = [
+        CronTickerStatus(
+            ticker=t.ticker,
+            ok=t.ok,
+            errors=t.errors,
+            processed_at=t.processed_at,
+        )
+        for t in cron_run.tickers
+    ]
+
+    return CronProfileStatusResponse(
+        id=str(cron_run.id) if getattr(cron_run, "id", None) is not None else None,
+        started_at=cron_run.started_at,
+        finished_at=cron_run.finished_at,
+        wait_sec=cron_run.wait_sec,
+        limit=cron_run.limit,
+        total_cached=cron_run.total_cached,
+        processed=cron_run.processed,
+        success=cron_run.success,
+        failed=cron_run.failed,
+        tickers=ticker_statuses,
+    )
+
+
+@router.get(
+    "/latest-candles",
+    status_code=status.HTTP_200_OK,
+)
+async def list_latest_candles_from_db(
+    min_close: float | None = Query(
+        None,
+        description="Minimum close price for latest 1m candle",
+    ),
+    min_volume: float | None = Query(
+        None,
+        description="Minimum volume for latest 1m candle",
+    ),
+):
+    """
+    Read-only endpoint to list latest 1-day candles from MongoDB
+    (collection: finnhub-latest-candles), optionally filtered by close
+    price and volume.
+    """
+    query: dict = {}
+    if min_close is not None:
+        query["close"] = {"$gte": min_close}
+    if min_volume is not None:
+        query["volume"] = {"$gte": min_volume}
+
+    cursor = LatestCandle.find(query) if query else LatestCandle.find()
+    docs = await cursor.to_list()
+
+    items = [
+        {
+            "ticker": doc.ticker,
+            "resolution": doc.resolution,
+            "open": doc.open,
+            "high": doc.high,
+            "low": doc.low,
+            "close": doc.close,
+            "volume": doc.volume,
+            "timestamp": doc.timestamp,
+        }
+        for doc in docs
+    ]
+
+    return {
+        "items": items,
+        "total": len(items),
+    }
 

@@ -5,13 +5,13 @@
  */
 
 // Backend API configuration
-const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000/api/v1';
+const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://192.168.1.150:8001/api/v1';
 
 // Debug: Log backend configuration
 if (typeof window !== 'undefined') {
   console.log('🌐 Backend API Base URL:', BACKEND_API_BASE_URL);
   console.log('📝 Environment variables:', {
-    VITE_BACKEND_API_URL: import.meta.env.VITE_BACKEND_API_URL || 'Using default: http://localhost:8000/api/v1',
+    VITE_BACKEND_API_URL: import.meta.env.VITE_BACKEND_API_URL || 'Using default: http://192.168.1.150:8001/api/v1',
     MODE: import.meta.env.MODE,
     DEV: import.meta.env.DEV,
     PROD: import.meta.env.PROD
@@ -147,6 +147,23 @@ export interface StockCandle {
   volume: number;
 }
 
+// Latest candle snapshot stored in DB (finnhub-latest-candles)
+export interface LatestCandleDbItem {
+  ticker: string;
+  resolution: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  timestamp: number | string;
+}
+
+export interface LatestCandlesDbResponse {
+  items: LatestCandleDbItem[];
+  total: number;
+}
+
 export interface ScreenerResponse {
   stocks: StockData[];
   total: number;
@@ -197,6 +214,12 @@ export interface StockSymbolsListResponse {
   total: number;
   exchanges: string[];
   updated_at?: string;
+}
+
+// Screener symbols (server-side filters on backend)
+export interface ScreenerSymbolsResponse {
+  symbols: string[];
+  total: number;
 }
 
 // Insider transactions
@@ -565,6 +588,49 @@ export async function fetchStockCandles(
       console.error('💡 Network error - make sure backend server is running on', BACKEND_API_BASE_URL);
     }
     return [];
+  }
+}
+
+// Fetch latest OHLCV candles snapshot from DB (finnhub-latest-candles)
+export async function fetchLatestCandlesFromDb(
+  minClose?: number,
+  minVolume?: number
+): Promise<LatestCandlesDbResponse> {
+  const params = new URLSearchParams();
+
+  if (minClose !== undefined) {
+    params.append('min_close', String(minClose));
+  }
+  if (minVolume !== undefined) {
+    params.append('min_volume', String(minVolume));
+  }
+
+  const query = params.toString();
+  const url = `${BACKEND_API_BASE_URL}/db/latest-candles${query ? `?${query}` : ''}`;
+
+  try {
+    console.log('🌐 Fetching latest candles from DB:', url);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Latest candles DB API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      throw new Error('Failed to fetch latest candles from DB');
+    }
+
+    const data = (await response.json()) as LatestCandlesDbResponse;
+    console.log('📦 Latest candles DB response:', data);
+    return data;
+  } catch (error) {
+    console.error('❌ Error fetching latest candles from DB:', error);
+    throw error;
   }
 }
 
@@ -988,6 +1054,44 @@ export async function fetchSymbolsFromDb(): Promise<StockSymbolsListResponse | n
 }
 
 /**
+ * Fetch list of symbols matching Screener filters from backend (server-side filtering).
+ * Backend endpoint: POST /db/screener-symbols
+ */
+export async function fetchScreenerSymbols(filters: any, search?: string): Promise<ScreenerSymbolsResponse | null> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/db/screener-symbols`;
+    console.log('🌐 Fetching screener symbols from DB with filters:', filters, 'search:', search);
+    console.log('   URL:', url);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        filters: filters || {},
+        search: search || null
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Screener symbols API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const result = (await response.json()) as ScreenerSymbolsResponse;
+    console.log('📦 Screener symbols response:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Error fetching screener symbols from backend:', error);
+    return null;
+  }
+}
+
+/**
  * Refresh stock symbols cache via Backend API (Finnhub /stock/symbol).
  * Uses backend endpoint: POST /finnhub/symbols/refresh
  */
@@ -1064,6 +1168,86 @@ export async function runProfileCron(
   }
 }
 
+/**
+ * Resume profile cache cron job from where it left off.
+ * Processes only unprocessed tickers.
+ * Backend endpoint: POST /finnhub/cron/profile-cache/resume
+ */
+export async function resumeProfileCron(
+  waitBetweenSec: number = 1,
+  limit?: number,
+  retryFailed: boolean = true
+): Promise<any | null> {
+  try {
+    const params = new URLSearchParams({
+      wait_sec: String(waitBetweenSec),
+      retry_failed: String(retryFailed),
+    });
+    if (typeof limit === 'number' && limit > 0) {
+      params.set('limit', String(limit));
+    }
+    const url = `${BACKEND_API_BASE_URL}/finnhub/cron/profile-cache/resume?${params.toString()}`;
+    console.log('🌐 Resuming profile cache cron via backend');
+    console.log('   URL:', url);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Resume profile cron API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const result = await response.json();
+    console.log('📦 Resume profile cron result:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Error resuming profile cron via backend:', error);
+    return null;
+  }
+}
+
+/**
+ * Cancel a running profile cache cron job by job_id.
+ * Backend endpoint: POST /finnhub/cron/profile-cache/cancel/{job_id}
+ */
+export async function cancelProfileCron(jobId: string): Promise<any | null> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/finnhub/cron/profile-cache/cancel/${jobId}`;
+    console.log('🛑 Cancelling profile cache cron job:', jobId);
+    console.log('   URL:', url);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Cancel profile cron API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const result = await response.json();
+    console.log('📦 Cancel profile cron result:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Error cancelling profile cron via backend:', error);
+    return null;
+  }
+}
+
 // ---- Cron job DB status ----
 
 export interface CronTickerStatus {
@@ -1116,6 +1300,40 @@ export async function fetchLatestProfileCronStatus(): Promise<CronProfileStatusR
     return result;
   } catch (error) {
     console.error('❌ Error fetching profile cron status from DB:', error);
+    return null;
+  }
+}
+
+/**
+ * Fetch status of a specific profile-cache cron job by job_id.
+ * Backend endpoint: GET /db/cron/profile-status/{job_id}
+ * Useful for polling real-time updates while job is running.
+ */
+export async function fetchProfileCronStatusById(jobId: string): Promise<CronProfileStatusResponse | null> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/db/cron/profile-status/${jobId}`;
+    console.log('🌐 Fetching profile cron status by job_id:', jobId);
+    console.log('   URL:', url);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Profile cron status by ID API failed:');
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const result = (await response.json()) as CronProfileStatusResponse;
+    return result;
+  } catch (error) {
+    console.error('❌ Error fetching profile cron status by ID:', error);
     return null;
   }
 }

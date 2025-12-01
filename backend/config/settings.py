@@ -32,7 +32,8 @@ class Settings(BaseSettings):
     
     # API Keys
     POLYGON_API_KEY: Optional[str] = None
-    FINNHUB_API_KEY: Optional[str] = None
+    # Default Finnhub API key (can be overridden via environment variable or backend/.env)
+    FINNHUB_API_KEY: Optional[str] = "d4gjo9hr01qm5b35u86gd4gjo9hr01qm5b35u870"
     
     # Proxy settings for rate limiting
     PROXY_SERVER: Optional[str] = None  # Single proxy (backward compatible)
@@ -45,6 +46,7 @@ class Settings(BaseSettings):
             # Default values
             self.CORS_ORIGINS = [
                 "http://localhost:5173",
+                "http://192.168.1.150:5173",
                 "http://localhost:3000",
                 "http://127.0.0.1:5173",
                 "http://127.0.0.1:3000"

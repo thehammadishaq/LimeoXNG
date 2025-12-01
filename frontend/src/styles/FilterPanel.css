@@ -61,7 +61,34 @@
   transition: color 0.3s;
 }
 
-.filter-item select {
+.filter-label-with-tooltip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  font-size: 9px;
+  line-height: 1;
+  cursor: help;
+  color: var(--text-secondary);
+  background-color: transparent;
+}
+
+.tooltip-icon:hover {
+  border-color: var(--link-color);
+  color: var(--link-color);
+}
+
+.filter-item select,
+.filter-item input[type="number"] {
   padding: 4px 6px;
   border: 1px solid var(--border-color);
   border-radius: 2px;
@@ -73,11 +100,13 @@
   transition: all 0.2s;
 }
 
-.filter-item select:hover {
+.filter-item select:hover,
+.filter-item input[type="number"]:hover {
   border-color: var(--link-color);
 }
 
-.filter-item select:focus {
+.filter-item select:focus,
+.filter-item input[type="number"]:focus {
   outline: none;
   border-color: var(--link-color);
   box-shadow: 0 0 2px rgba(0, 136, 204, 0.3);

@@ -1,25 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Moon, Sun, ChevronDown, ChevronUp } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { filterOptions, signals, orderByOptions } from '../mockData';
 import FilterPanel from '../components/FilterPanel';
 import StockTable from '../components/StockTableEnhanced';
 import { useTheme } from '../context/ThemeContext';
-import { fetchScreenerData, transformStockData } from '../services/api';
+import {
+  fetchScreenerData,
+  fetchScreenerSymbols,
+  transformStockData,
+  fetchLatestCandlesFromDb,
+  type LatestCandleDbItem,
+} from '../services/api';
 
 const Screener = () => {
   const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
   const [stocks, setStocks] = useState<any[]>([]);
-  const [filteredStocks, setFilteredStocks] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
+  const [totalStocks, setTotalStocks] = useState(0);
+  const [allSymbols, setAllSymbols] = useState<string[]>([]);
   const [selectedView, setSelectedView] = useState('overview');
   const [orderBy, setOrderBy] = useState('Ticker');
   const [orderDirection, setOrderDirection] = useState('Asc');
   const [selectedSignal, setSelectedSignal] = useState('None (all stocks)');
   const [filters, setFilters] = useState<any>({});
-  const [activeFilterTab, setActiveFilterTab] = useState('descriptive');
+  const [activeFilterTab, setActiveFilterTab] = useState('valuation');
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true); // Start with true to show skeleton initially
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +36,30 @@ const Screener = () => {
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
   const [portfolioName, setPortfolioName] = useState('');
   const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
+  const [latestCandles, setLatestCandles] = useState<Record<string, LatestCandleDbItem>>({});
+  const [latestCandlesLoaded, setLatestCandlesLoaded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const loadLatestCandles = useCallback(async () => {
+    if (latestCandlesLoaded) return;
+
+    try {
+      console.log('🔄 Fetching latest OHLCV candles from DB for OHLCV view...');
+      const resp = await fetchLatestCandlesFromDb();
+      const map: Record<string, LatestCandleDbItem> = {};
+      (resp.items || []).forEach((item) => {
+        if (item.ticker) {
+          map[item.ticker.toUpperCase()] = item;
+        }
+      });
+      console.log('✅ Loaded latest candles for tickers:', Object.keys(map).length);
+      setLatestCandles(map);
+      setLatestCandlesLoaded(true);
+    } catch (error) {
+      console.error('❌ Error loading latest candles from DB:', error);
+      setLatestCandlesLoaded(true);
+    }
+  }, [latestCandlesLoaded]);
 
   // Fetch data from API
   const fetchData = async (
@@ -72,7 +103,7 @@ const Screener = () => {
         console.error('   4. Invalid API key');
         setError('No stocks data available. Please check browser console for detailed error messages.');
         setStocks([]);
-        setFilteredStocks([]);
+        setTotalStocks(0);
         setLoading(false);
         return;
       }
@@ -113,7 +144,6 @@ const Screener = () => {
         console.error('💡 Check the console logs above for API call details');
         setError('Failed to process stock data. Please check browser console for detailed error messages.');
         setStocks([]);
-        setFilteredStocks([]);
         setLoading(false);
         return;
       }
@@ -126,7 +156,12 @@ const Screener = () => {
       }));
       
       setStocks(numberedStocks);
-      setFilteredStocks(numberedStocks);
+      // Only update totalStocks when we are using backend pagination mode
+      // (no explicit symbols provided). In symbol mode, totalStocks comes
+      // from the screener-symbols backend endpoint.
+      if (!symbols || symbols.length === 0) {
+        setTotalStocks(response.total ?? numberedStocks.length);
+      }
       setCurrentPage(pageNum);
       setLastRefresh(new Date());
       
@@ -142,147 +177,98 @@ const Screener = () => {
       const errorMessage = err?.message || 'Failed to fetch data. Please check browser console for details.';
       setError(errorMessage);
       setStocks([]);
-      setFilteredStocks([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Initial load - fetch default symbols (profiles only, no financials)
-  useEffect(() => {
-    // Fetch both profile and financials data from DB on page load (all tickers, paginated)
-    console.log('🔄 Initial page load - fetching profile and financials data from DB...');
-    fetchData(false, 1, undefined, true);
-    setFinancialsLoaded(true); // Mark as loaded since we're fetching it initially
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [filters, selectedSignal, orderBy, orderDirection, stocks]);
-
-  const applyFilters = () => {
-    // Only apply filters if we have stocks from API
-    if (stocks.length === 0) {
-      setFilteredStocks([]);
-      return;
-    }
-    
-    let filtered = [...stocks];
-
-    // Apply sector filter
-    if (filters.sector && filters.sector !== 'Any') {
-      filtered = filtered.filter(stock => stock.sector === filters.sector);
-    }
-
-    // Apply industry filter
-    if (filters.industry && filters.industry !== 'Any') {
-      filtered = filtered.filter(stock => stock.industry === filters.industry);
-    }
-
-    // Apply market cap filter
-    if (filters.marketCap && filters.marketCap !== 'Any') {
-      // Simple implementation - you can make this more sophisticated
-      filtered = filtered.filter(stock => {
-        const capValue = parseFloat(stock.marketCap.replace('B', ''));
-        if (filters.marketCap === 'Mega ($200bln and more)') return capValue >= 200;
-        if (filters.marketCap === 'Large ($10bln to $200bln)') return capValue >= 10 && capValue < 200;
-        if (filters.marketCap === 'Mid ($2bln to $10bln)') return capValue >= 2 && capValue < 10;
-        return true;
-      });
-    }
-
-    // Apply signal filter
-    if (selectedSignal !== 'None (all stocks)') {
-      if (selectedSignal === 'Top Gainers') {
-        filtered.sort((a, b) => parseFloat(b.change) - parseFloat(a.change));
-        filtered = filtered.slice(0, 20);
-      } else if (selectedSignal === 'Top Losers') {
-        filtered.sort((a, b) => parseFloat(a.change) - parseFloat(b.change));
-        filtered = filtered.slice(0, 20);
-      } else if (selectedSignal === 'Most Active') {
-        filtered.sort((a, b) => b.volume - a.volume);
-      } else if (selectedSignal === 'Overbought') {
-        filtered = filtered.filter(stock => stock.rsi > 70);
-      } else if (selectedSignal === 'Oversold') {
-        filtered = filtered.filter(stock => stock.rsi < 30);
-      }
-    }
-
-    // Apply sorting
-    if (orderBy !== 'Ticker') {
-      filtered.sort((a, b) => {
-        let aVal, bVal;
-        switch (orderBy) {
-          case 'Company':
-            aVal = a.company;
-            bVal = b.company;
-            break;
-          case 'Sector':
-            aVal = a.sector;
-            bVal = b.sector;
-            break;
-          case 'Market Cap.':
-            aVal = parseFloat(a.marketCap.replace('B', ''));
-            bVal = parseFloat(b.marketCap.replace('B', ''));
-            break;
-          case 'P/E':
-            aVal = a.pe;
-            bVal = b.pe;
-            break;
-          case 'Price':
-            aVal = a.price;
-            bVal = b.price;
-            break;
-          case 'Change':
-            aVal = parseFloat(a.change);
-            bVal = parseFloat(b.change);
-            break;
-          case 'Volume':
-            aVal = a.volume;
-            bVal = b.volume;
-            break;
-          default:
-            aVal = a.ticker;
-            bVal = b.ticker;
-        }
-
-        if (orderDirection === 'Asc') {
-          return aVal > bVal ? 1 : -1;
-        } else {
-          return aVal < bVal ? 1 : -1;
-        }
-      });
-    }
-
-    setFilteredStocks(filtered);
-    setCurrentPage(1);
+  const getPageSymbols = (symbols: string[], pageNum: number): string[] => {
+    if (!symbols || symbols.length === 0) return [];
+    const start = (pageNum - 1) * itemsPerPage;
+    return symbols.slice(start, start + itemsPerPage);
   };
 
+  // Load full symbol universe matching current filters (server-side),
+  // then fetch data for the requested page from DB.
+  const loadSymbolsAndPage = async (pageNum: number = 1, forceRefresh: boolean = false) => {
+    try {
+      console.log('🔍 Loading screener symbols from backend with filters:', filters, 'search:', searchTerm);
+      const symbolsResp = await fetchScreenerSymbols(filters, searchTerm.trim() || undefined);
+
+      if (!symbolsResp || !symbolsResp.symbols || symbolsResp.symbols.length === 0) {
+        console.warn('⚠️ No symbols returned for current filters');
+        setAllSymbols([]);
+        setTotalStocks(0);
+        setStocks([]);
+        setCurrentPage(1);
+        setError('No stocks match current filters.');
+        return;
+      }
+
+      const symbols = symbolsResp.symbols;
+      const total = symbolsResp.total ?? symbols.length;
+
+      setAllSymbols(symbols);
+      setTotalStocks(total);
+
+      const safePage = Math.max(1, Math.min(pageNum, Math.ceil(total / itemsPerPage) || 1));
+      const pageSymbols = getPageSymbols(symbols, safePage);
+
+      if (pageSymbols.length === 0) {
+        setStocks([]);
+        setCurrentPage(safePage);
+        return;
+      }
+
+      // Fetch DB profile + financials for page symbols
+      await fetchData(forceRefresh, safePage, pageSymbols, true);
+      setFinancialsLoaded(true);
+    } catch (e: any) {
+      console.error('❌ Error loading screener symbols/page:', e);
+      setAllSymbols([]);
+      setTotalStocks(0);
+      setStocks([]);
+      setCurrentPage(1);
+      setError(e?.message || 'Failed to load screener data. Please check browser console.');
+    }
+  };
+
+  // When filters or search term change, refresh full symbol list and reset to first page
+  useEffect(() => {
+    loadSymbolsAndPage(1, false);
+  }, [filters, searchTerm]);
+
   
-  // Use stocks directly (already paginated from API)
+  // Use stocks directly (no client-side filtering - backend handles search)
   const currentStocks = stocks;
-  
-  // Calculate index for display
+  const totalPages = totalStocks > 0 ? Math.ceil(totalStocks / itemsPerPage) : 1;
   const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
   
   const handlePageChange = (pageNumber: number) => {
+    const pageSymbols = getPageSymbols(allSymbols, pageNumber);
     setCurrentPage(pageNumber);
+
+    if (pageSymbols.length === 0) {
+      setStocks([]);
+      return;
+    }
+
     // If financials were already loaded once, keep including them for new pages
-    fetchData(false, pageNumber, undefined, financialsLoaded);
+    fetchData(false, pageNumber, pageSymbols, financialsLoaded);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Open portfolio modal pre-populated with current filtered stocks
   const handleOpenPortfolioModal = () => {
     try {
-      if (!filteredStocks || filteredStocks.length === 0) {
+      if (!stocks || stocks.length === 0) {
         setPortfolioMessage('No stocks to save. Adjust filters or load data first.');
         return;
       }
 
       const defaultName = `Portfolio ${new Date().toLocaleDateString()}`;
       setPortfolioName(defaultName);
-      setSelectedTickers(filteredStocks.map((s) => s.ticker));
+      setSelectedTickers(stocks.map((s) => s.ticker));
       setShowPortfolioModal(true);
       setPortfolioMessage(null);
     } catch (e) {
@@ -298,7 +284,7 @@ const Screener = () => {
   };
 
   const handleSelectAllTickers = () => {
-    setSelectedTickers(filteredStocks.map((s) => s.ticker));
+    setSelectedTickers(stocks.map((s) => s.ticker));
   };
 
   const handleClearAllTickers = () => {
@@ -308,14 +294,14 @@ const Screener = () => {
   // Save portfolio to localStorage from modal selection
   const handleSavePortfolio = () => {
     try {
-      if (!filteredStocks || filteredStocks.length === 0) {
+      if (!stocks || stocks.length === 0) {
         setPortfolioMessage('No stocks to save. Adjust filters or load data first.');
         setShowPortfolioModal(false);
         return;
       }
 
       const trimmedName = portfolioName.trim() || `Portfolio ${new Date().toLocaleDateString()}`;
-      const selectedStocks = filteredStocks.filter((s) => selectedTickers.includes(s.ticker));
+      const selectedStocks = stocks.filter((s) => selectedTickers.includes(s.ticker));
 
       if (selectedStocks.length === 0) {
         setPortfolioMessage('Select at least one company to create a portfolio.');
@@ -408,6 +394,32 @@ const Screener = () => {
         {/* Top Controls */}
         <div className="top-controls">
           <div className="controls-left">
+            <input
+              type="text"
+              placeholder="Search tickers..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+              style={{
+                padding: '3px 6px',
+                fontSize: '11px',
+                border: '1px solid var(--border-color)',
+                borderRadius: '2px',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+                width: '200px',
+                cursor: 'text',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--link-color)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+              }}
+            />
+            <span className="separator">|</span>
             <select className="preset-select">
               <option>My Presets</option>
               <option>-Save Screen-</option>
@@ -549,6 +561,17 @@ const Screener = () => {
             Growth
           </button>
           <button
+            className={selectedView === 'ohlcv' ? 'tab-active' : ''}
+            onClick={() => {
+              setSelectedView('ohlcv');
+              if (!latestCandlesLoaded) {
+                loadLatestCandles();
+              }
+            }}
+          >
+            OHLCV
+          </button>
+          <button
             className={selectedView === 'technical' ? 'tab-active' : ''}
             onClick={() => setSelectedView('technical')}
           >
@@ -560,7 +583,13 @@ const Screener = () => {
       {/* Results Info */}
       <div className="results-info">
         <div className="results-text">
-          {filteredStocks.length > 0 ? `Showing ${filteredStocks.length} stocks` : 'No stocks to display'}
+          {totalStocks > 0 && currentStocks.length > 0
+            ? `Showing ${indexOfFirstItem + 1}-${indexOfFirstItem + currentStocks.length} of ${totalStocks} stocks${searchTerm.trim() ? ` matching "${searchTerm}"` : ''}`
+            : totalStocks > 0
+            ? `Showing 0 of ${totalStocks} stocks${searchTerm.trim() ? ` matching "${searchTerm}"` : ''}`
+            : searchTerm.trim()
+            ? `No stocks found matching "${searchTerm}"`
+            : 'No stocks to display'}
           {loading && <span style={{ marginLeft: '10px', color: 'var(--link-color)' }}>Loading...</span>}
           {error && <span style={{ marginLeft: '10px', color: 'var(--negative)' }}>{error}</span>}
           {portfolioMessage && (
@@ -590,8 +619,12 @@ const Screener = () => {
               href="#" 
               onClick={(e) => {
                 e.preventDefault();
-                // Respect whether financials were loaded before
-                fetchData(true, currentPage, undefined, financialsLoaded);
+                const pageSymbols = getPageSymbols(allSymbols, currentPage);
+                if (pageSymbols.length === 0) {
+                  return;
+                }
+                // Respect whether financials were loaded before, but refresh DB data
+                fetchData(true, currentPage, pageSymbols, financialsLoaded);
               }}
               style={{ marginLeft: '4px', cursor: 'pointer' }}
             >
@@ -602,8 +635,12 @@ const Screener = () => {
               href="#" 
               onClick={(e) => {
                 e.preventDefault();
-                // Respect whether financials were loaded before
-                fetchData(false, currentPage, undefined, financialsLoaded);
+                const pageSymbols = getPageSymbols(allSymbols, currentPage);
+                if (pageSymbols.length === 0) {
+                  return;
+                }
+                // Respect whether financials were loaded before, use cached DB data
+                fetchData(false, currentPage, pageSymbols, financialsLoaded);
               }}
               style={{ cursor: 'pointer' }}
             >
@@ -618,6 +655,7 @@ const Screener = () => {
         stocks={currentStocks}
         view={selectedView}
         loading={loading}
+        latestCandlesByTicker={latestCandles}
       />
       {!loading && currentStocks.length === 0 && (
         <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -625,7 +663,7 @@ const Screener = () => {
             <div>
               <p>{error}</p>
               <button 
-                onClick={() => fetchData(false, 1)}
+                onClick={() => loadSymbolsAndPage(1, false)}
                 style={{
                   marginTop: '10px',
                   padding: '8px 16px',
@@ -642,6 +680,46 @@ const Screener = () => {
           ) : (
             <p>No stocks available. Please check your connection and try again.</p>
           )}
+        </div>
+      )}
+
+      {/* Pagination controls for screener table */}
+      {!loading && totalStocks > itemsPerPage && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 8,
+            padding: '0 16px 8px',
+            gap: 12,
+            fontSize: 11,
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <div>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ marginRight: 4, padding: '2px 8px', fontSize: 11 }}
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1 || loading}
+            >
+              Prev
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ padding: '2px 8px', fontSize: 11 }}
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages || loading}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
 
@@ -674,7 +752,7 @@ const Screener = () => {
               </div>
               <div className="portfolio-summary-row">
                 <span>
-                  Selected {selectedTickers.length} of {filteredStocks.length} companies
+                  Selected {selectedTickers.length} of {stocks.length} companies
                 </span>
                 <div className="portfolio-summary-actions">
                   <button onClick={handleSelectAllTickers}>Select all</button>
@@ -682,7 +760,7 @@ const Screener = () => {
                 </div>
               </div>
               <div className="portfolio-list">
-                {filteredStocks.map((stock) => (
+                {stocks.map((stock) => (
                   <label
                     key={stock.ticker}
                     className="portfolio-row"

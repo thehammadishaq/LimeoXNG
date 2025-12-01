@@ -1,0 +1,261 @@
+INFO:     Will watch for changes in these directories: ['/media/limeox/nvme4tb/LimeoXNG/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [801313] using WatchFiles
+INFO:     Started server process [803546]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+✅ MongoDB connected to LimeoXNG
+   Connection: Atlas
+INFO:     192.168.1.28:52581 - "OPTIONS /api/v1/db/profiles?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     192.168.1.28:52581 - "GET /api/v1/db/profiles?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     192.168.1.28:52581 - "OPTIONS /api/v1/db/basic-financials/A HTTP/1.1" 200 OK
+INFO:     192.168.1.28:59445 - "OPTIONS /api/v1/db/basic-financials/AA HTTP/1.1" 200 OK
+INFO:     192.168.1.28:52581 - "OPTIONS /api/v1/db/basic-financials/AABB HTTP/1.1" 200 OK
+INFO:     192.168.1.28:55638 - "OPTIONS /api/v1/db/basic-financials/AABVF HTTP/1.1" 200 OK
+INFO:     192.168.1.28:55638 - "GET /api/v1/db/basic-financials/A HTTP/1.1" 200 OK
+INFO:     192.168.1.28:52581 - "GET /api/v1/db/basic-financials/AA HTTP/1.1" 200 OK
+INFO:     192.168.1.28:59445 - "GET /api/v1/db/basic-financials/AABB HTTP/1.1" 200 OK
+INFO:     192.168.1.28:56760 - "GET /api/v1/db/basic-financials/AABVF HTTP/1.1" 200 OK
+INFO:     192.168.1.28:53933 - "OPTIONS /api/v1/db/symbols HTTP/1.1" 200 OK
+INFO:     192.168.1.28:53933 - "GET /api/v1/db/symbols HTTP/1.1" 200 OK
+INFO:     192.168.1.28:53933 - "OPTIONS /api/v1/db/cron/profile-status HTTP/1.1" 200 OK
+INFO:     192.168.1.28:53933 - "GET /api/v1/db/cron/profile-status HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'routes/db_read_routes.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [803546]
+INFO:     Started server process [913792]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'routes/db_read_routes.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [913792]
+INFO:     Started server process [917474]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+✅ MongoDB connected to LimeoXNG
+   Connection: Atlas
+INFO:     192.168.1.28:52882 - "GET /api/v1/db/profiles?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     192.168.1.28:52882 - "GET /api/v1/db/basic-financials/A HTTP/1.1" 200 OK
+INFO:     192.168.1.28:49875 - "GET /api/v1/db/basic-financials/AA HTTP/1.1" 200 OK
+INFO:     192.168.1.28:57782 - "GET /api/v1/db/basic-financials/AABB HTTP/1.1" 200 OK
+INFO:     192.168.1.28:57908 - "GET /api/v1/db/basic-financials/AABVF HTTP/1.1" 200 OK
+INFO:     192.168.1.28:62761 - "GET /api/v1/db/symbols HTTP/1.1" 200 OK
+INFO:     192.168.1.28:62761 - "GET /api/v1/db/cron/profile-status HTTP/1.1" 200 OK
+INFO:     192.168.1.28:62678 - "OPTIONS /api/v1/finnhub/cron/profile-cache?wait_sec=1&limit=18421 HTTP/1.1" 200 OK
+INFO:     192.168.1.28:62678 - "POST /api/v1/finnhub/cron/profile-cache?wait_sec=1&limit=18421 HTTP/1.1" 422 Unprocessable Entity
+INFO:     192.168.1.28:62678 - "POST /api/v1/finnhub/cron/profile-cache?wait_sec=1&limit=18421 HTTP/1.1" 422 Unprocessable Entity
+INFO:     192.168.1.28:62678 - "POST /api/v1/finnhub/cron/profile-cache?wait_sec=1&limit=18421 HTTP/1.1" 422 Unprocessable Entity
+INFO:     192.168.1.28:55221 - "OPTIONS /api/v1/finnhub/cron/profile-cache?wait_sec=1&limit=5 HTTP/1.1" 200 OK
+Received request to fetch profile for A from Finnhub (GET)
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Company Profile from Finnhub for A...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/profile2
+   Symbol: A
+   Using Premium endpoint: /stock/profile2
+💾 save_to_db parameter: True
+💾 Attempting to save profile for A to database...
+📦 Extracted profile data keys: ['country', 'currency', 'estimateCurrency', 'exchange', 'finnhubIndustry', 'ipo', 'logo', 'marketCapitalization', 'name', 'phone']
+🔍 Existing profile check for A: Found
+📝 Updating existing profile for A with profile data...
+✅ Updated existing profile for A in DB: 6927f797a9f8c077ccdb44a3
+Received request to fetch basic financials for A from Finnhub (GET), metric=all
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Basic Financials from Finnhub for A (metric=all)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/metric
+   Symbol: A
+   Metric: all
+💾 save_to_db parameter: True
+💾 Attempting to save basic financials for A to database...
+📦 Extracted basic financials data keys: ['metric', 'metricType', 'series', 'symbol']
+🔍 Existing basic financials check for A: Found
+📝 Updating existing basic financials for A with new data...
+✅ Updated existing basic financials for A in DB: 6927f799a9f8c077ccdb44a4
+Received request to fetch stock candles for A from Finnhub (GET), resolution=1, from=1764250454, to=1764254054
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Stock Candles from Finnhub for A (resolution=1)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/candle
+   Symbol: A
+   Resolution: 1
+   From: 1764250454
+   To: 1764254054
+   Using Premium endpoint: /stock/candle
+⚠️ No data available for A in the specified time range
+Received request to fetch profile for AA from Finnhub (GET)
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Company Profile from Finnhub for AA...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/profile2
+   Symbol: AA
+   Using Premium endpoint: /stock/profile2
+💾 save_to_db parameter: True
+💾 Attempting to save profile for AA to database...
+📦 Extracted profile data keys: ['country', 'currency', 'estimateCurrency', 'exchange', 'finnhubIndustry', 'ipo', 'logo', 'marketCapitalization', 'name', 'phone']
+🔍 Existing profile check for AA: Found
+📝 Updating existing profile for AA with profile data...
+✅ Updated existing profile for AA in DB: 6927f79ca9f8c077ccdb44a5
+Received request to fetch basic financials for AA from Finnhub (GET), metric=all
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Basic Financials from Finnhub for AA (metric=all)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/metric
+   Symbol: AA
+   Metric: all
+💾 save_to_db parameter: True
+💾 Attempting to save basic financials for AA to database...
+📦 Extracted basic financials data keys: ['metric', 'metricType', 'series', 'symbol']
+🔍 Existing basic financials check for AA: Found
+📝 Updating existing basic financials for AA with new data...
+✅ Updated existing basic financials for AA in DB: 6927f79ea9f8c077ccdb44a6
+Received request to fetch stock candles for AA from Finnhub (GET), resolution=1, from=1764250460, to=1764254060
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Stock Candles from Finnhub for AA (resolution=1)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/candle
+   Symbol: AA
+   Resolution: 1
+   From: 1764250460
+   To: 1764254060
+   Using Premium endpoint: /stock/candle
+⚠️ No data available for AA in the specified time range
+Received request to fetch profile for AABB from Finnhub (GET)
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Company Profile from Finnhub for AABB...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/profile2
+   Symbol: AABB
+   Using Premium endpoint: /stock/profile2
+💾 save_to_db parameter: True
+💾 Attempting to save profile for AABB to database...
+📦 Extracted profile data keys: ['country', 'currency', 'estimateCurrency', 'exchange', 'finnhubIndustry', 'ipo', 'logo', 'marketCapitalization', 'name', 'phone']
+🔍 Existing profile check for AABB: Found
+📝 Updating existing profile for AABB with profile data...
+✅ Updated existing profile for AABB in DB: 6927f7a1a9f8c077ccdb44a7
+Received request to fetch basic financials for AABB from Finnhub (GET), metric=all
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Basic Financials from Finnhub for AABB (metric=all)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/metric
+   Symbol: AABB
+   Metric: all
+💾 save_to_db parameter: True
+💾 Attempting to save basic financials for AABB to database...
+📦 Extracted basic financials data keys: ['metric', 'metricType', 'series', 'symbol']
+🔍 Existing basic financials check for AABB: Found
+📝 Updating existing basic financials for AABB with new data...
+✅ Updated existing basic financials for AABB in DB: 6927f7a3a9f8c077ccdb44a8
+Received request to fetch stock candles for AABB from Finnhub (GET), resolution=1, from=1764250465, to=1764254065
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Stock Candles from Finnhub for AABB (resolution=1)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/candle
+   Symbol: AABB
+   Resolution: 1
+   From: 1764250465
+   To: 1764254065
+   Using Premium endpoint: /stock/candle
+⚠️ No data available for AABB in the specified time range
+Received request to fetch profile for AABKF from Finnhub (GET)
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Company Profile from Finnhub for AABKF...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/profile2
+   Symbol: AABKF
+   Using Premium endpoint: /stock/profile2
+⚠️ Failed to fetch Company Profile for AABKF
+Received request to fetch basic financials for AABKF from Finnhub (GET), metric=all
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Basic Financials from Finnhub for AABKF (metric=all)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/metric
+   Symbol: AABKF
+   Metric: all
+💾 save_to_db parameter: True
+💾 Attempting to save basic financials for AABKF to database...
+📦 Extracted basic financials data keys: ['metric', 'metricType', 'series', 'symbol']
+🔍 Existing basic financials check for AABKF: Found
+📝 Updating existing basic financials for AABKF with new data...
+✅ Updated existing basic financials for AABKF in DB: 6927f7a9a9f8c077ccdb44a9
+Received request to fetch stock candles for AABKF from Finnhub (GET), resolution=1, from=1764250470, to=1764254070
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Stock Candles from Finnhub for AABKF (resolution=1)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/candle
+   Symbol: AABKF
+   Resolution: 1
+   From: 1764250470
+   To: 1764254070
+   Using Premium endpoint: /stock/candle
+⚠️ No data available for AABKF in the specified time range
+Received request to fetch profile for AABVF from Finnhub (GET)
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Company Profile from Finnhub for AABVF...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/profile2
+   Symbol: AABVF
+   Using Premium endpoint: /stock/profile2
+💾 save_to_db parameter: True
+💾 Attempting to save profile for AABVF to database...
+📦 Extracted profile data keys: ['country', 'currency', 'estimateCurrency', 'exchange', 'finnhubIndustry', 'ipo', 'logo', 'marketCapitalization', 'name', 'phone']
+🔍 Existing profile check for AABVF: Found
+📝 Updating existing profile for AABVF with profile data...
+✅ Updated existing profile for AABVF in DB: 6927f7aca9f8c077ccdb44aa
+Received request to fetch basic financials for AABVF from Finnhub (GET), metric=all
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Basic Financials from Finnhub for AABVF (metric=all)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/metric
+   Symbol: AABVF
+   Metric: all
+💾 save_to_db parameter: True
+💾 Attempting to save basic financials for AABVF to database...
+📦 Extracted basic financials data keys: ['metric', 'metricType', 'series', 'symbol']
+🔍 Existing basic financials check for AABVF: Found
+📝 Updating existing basic financials for AABVF with new data...
+✅ Updated existing basic financials for AABVF in DB: 6927f7aea9f8c077ccdb44ab
+Received request to fetch stock candles for AABVF from Finnhub (GET), resolution=1, from=1764250475, to=1764254075
+🔑 Using API Key: d4gjo...5u870
+📊 Fetching Stock Candles from Finnhub for AABVF (resolution=1)...
+🌐 Calling Finnhub API: https://finnhub.io/api/v1/stock/candle
+   Symbol: AABVF
+   Resolution: 1
+   From: 1764250475
+   To: 1764254075
+   Using Premium endpoint: /stock/candle
+⚠️ No data available for AABVF in the specified time range
+INFO:     192.168.1.28:55221 - "POST /api/v1/finnhub/cron/profile-cache?wait_sec=1&limit=5 HTTP/1.1" 200 OK
+INFO:     192.168.1.28:57032 - "POST /api/v1/finnhub/cron/profile-cache?wait_sec=1&limit=18421 HTTP/1.1" 422 Unprocessable Entity
+WARNING:  WatchFiles detected changes in 'routes/finnhub/finnhub_routes.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [917474]
+INFO:     Started server process [975462]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'routes/finnhub/finnhub_routes.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [975462]
+INFO:     Started server process [978242]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+✅ MongoDB connected to LimeoXNG
+   Connection: Atlas
+INFO:     192.168.1.28:50746 - "OPTIONS /api/v1/finnhub/symbols/refresh HTTP/1.1" 200 OK
+🔄 Fetching fresh symbols list from Finnhub (no cache)...
+✅ Fetched 18421 unique stock symbols
+INFO:     192.168.1.28:50746 - "POST /api/v1/finnhub/symbols/refresh HTTP/1.1" 200 OK
+INFO:     192.168.1.28:55599 - "OPTIONS /api/v1/db/profiles?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     192.168.1.28:55599 - "GET /api/v1/db/profiles?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     192.168.1.28:55599 - "OPTIONS /api/v1/db/basic-financials/A HTTP/1.1" 200 OK
+INFO:     192.168.1.28:62517 - "OPTIONS /api/v1/db/basic-financials/AA HTTP/1.1" 200 OK
+INFO:     192.168.1.28:60769 - "OPTIONS /api/v1/db/basic-financials/AABB HTTP/1.1" 200 OK
+INFO:     192.168.1.28:51474 - "OPTIONS /api/v1/db/basic-financials/AABVF HTTP/1.1" 200 OK
+INFO:     192.168.1.28:55599 - "GET /api/v1/db/basic-financials/A HTTP/1.1" 200 OK
+INFO:     192.168.1.28:62517 - "GET /api/v1/db/basic-financials/AABVF HTTP/1.1" 200 OK
+INFO:     192.168.1.28:60769 - "GET /api/v1/db/basic-financials/AABB HTTP/1.1" 200 OK
+INFO:     192.168.1.28:51474 - "GET /api/v1/db/basic-financials/AA HTTP/1.1" 200 OK
+INFO:     192.168.1.28:51077 - "GET /api/v1/db/profiles?page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     192.168.1.28:51077 - "GET /api/v1/db/basic-financials/A HTTP/1.1" 200 OK
+INFO:     192.168.1.28:63748 - "GET /api/v1/db/basic-financials/AABB HTTP/1.1" 200 OK
+INFO:     192.168.1.28:54446 - "GET /api/v1/db/basic-financials/AA HTTP/1.1" 200 OK
+INFO:     192.168.1.28:59035 - "GET /api/v1/db/basic-financials/AABVF HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [978242]
+INFO:     Stopping reloader process [801313]

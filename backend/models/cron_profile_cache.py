@@ -66,6 +66,10 @@ class ProfileCacheCronRun(Document):
         default_factory=list,
         description="Per-ticker results for this cron run",
     )
+    cancelled: bool = Field(
+        default=False,
+        description="Whether this cron job was cancelled by user",
+    )
 
     class Settings:
         name = "cron_profile_cache_runs"

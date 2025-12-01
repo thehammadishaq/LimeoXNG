@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { mockNews } from '../mockData';
 import { cn } from '../lib/utils';
+import type { LatestCandleDbItem } from '../services/api';
 
 // Simple Skeleton component
 const Skeleton = ({ className = '', style, ...props }: { className?: string; style?: React.CSSProperties; [key: string]: any }) => {
@@ -19,9 +20,10 @@ interface StockTableProps {
   stocks: any[];
   view: string;
   loading?: boolean;
+  latestCandlesByTicker?: Record<string, LatestCandleDbItem>;
 }
 
-const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
+const StockTable = ({ stocks, view, loading = false, latestCandlesByTicker }: StockTableProps) => {
   // Debug: Log loading state
   React.useEffect(() => {
     console.log('StockTable render - loading:', loading, 'stocks.length:', stocks.length);
@@ -950,6 +952,77 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
     </div>
   );
 
+  // OHLCV view (latest candle from DB)
+  const renderOhlcvView = () => (
+    <div className="table-container scrollbar-custom">
+      <table className="stock-table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Ticker</th>
+            <th>Resolution</th>
+            <th>Open</th>
+            <th>High</th>
+            <th>Low</th>
+            <th>Close</th>
+            <th>Volume</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            Array.from({ length: 20 }).map((_, index) => (
+              <tr key={`skeleton-ohlcv-${index}`}>
+                <td><SkeletonBox width="20px" /></td>
+                <td><SkeletonBox width="50px" /></td>
+                <td><SkeletonBox width="60px" /></td>
+                <td><SkeletonBox width="80px" /></td>
+                <td><SkeletonBox width="80px" /></td>
+                <td><SkeletonBox width="80px" /></td>
+                <td><SkeletonBox width="80px" /></td>
+                <td><SkeletonBox width="100px" /></td>
+                <td><SkeletonBox width="140px" /></td>
+              </tr>
+            ))
+          ) : (
+            stocks.map((stock) => {
+              const candle = latestCandlesByTicker?.[stock.ticker];
+
+              const formatNumber = (value: number | undefined) =>
+                value !== undefined && !isNaN(value) ? value.toFixed(2) : 'N/A';
+
+              let timestampDisplay = 'N/A';
+              if (candle?.timestamp !== undefined && candle?.timestamp !== null) {
+                if (typeof candle.timestamp === 'number') {
+                  timestampDisplay = new Date(candle.timestamp * 1000).toLocaleString();
+                } else {
+                  const d = new Date(candle.timestamp);
+                  if (!isNaN(d.getTime())) {
+                    timestampDisplay = d.toLocaleString();
+                  }
+                }
+              }
+
+              return (
+                <tr key={stock.ticker}>
+                  <td>{stock.no}</td>
+                  <td><Link to={`/stock/${stock.ticker}`} className="ticker-link">{stock.ticker}</Link></td>
+                  <td>{candle?.resolution ?? 'N/A'}</td>
+                  <td>{formatNumber(candle?.open as number | undefined)}</td>
+                  <td>{formatNumber(candle?.high as number | undefined)}</td>
+                  <td>{formatNumber(candle?.low as number | undefined)}</td>
+                  <td>{formatNumber(candle?.close as number | undefined)}</td>
+                  <td>{candle?.volume !== undefined ? candle.volume.toLocaleString() : 'N/A'}</td>
+                  <td>{timestampDisplay}</td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
   // News view
   const renderNewsView = () => (
     <div className="table-container scrollbar-custom">
@@ -1012,6 +1085,7 @@ const StockTable = ({ stocks, view, loading = false }: StockTableProps) => {
     case 'performance': return renderPerformanceView();
     case 'cashflow': return renderCashFlowView();
     case 'growth': return renderGrowthView();
+    case 'ohlcv': return renderOhlcvView();
     case 'technical': return renderTechnicalView();
     case 'news': return renderNewsView();
       return renderOverviewView();
