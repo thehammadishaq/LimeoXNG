@@ -1,0 +1,32 @@
+routes import api_router
+  File "/media/limeox/nvme4tb/LimeoXNG/backend/routes/__init__.py", line 6, in <module>
+    from .institution_ownership_routes import router as institution_ownership_router
+  File "/media/limeox/nvme4tb/LimeoXNG/backend/routes/institution_ownership_routes.py", line 15, in <module>
+    from sqlalchemy.orm import Session
+ModuleNotFoundError: No module named 'sqlalchemy'
+WARNING:  WatchFiles detected changes in 'routes/__init__.py', 'services/institution_ownership_service.py', 'routes/institution_ownership_routes.py'. Reloading...
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/usr/lib/python3.10/multiprocessing/spawn.py", line 116, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/usr/lib/python3.10/multiprocessing/spawn.py", line 125, in _main
+    prepare(preparation_data)
+  File "/usr/lib/python3.10/multiprocessing/spawn.py", line 236, in prepare
+    _fixup_main_from_path(data['init_main_from_path'])
+  File "/usr/lib/python3.10/multiprocessing/spawn.py", line 287, in _fixup_main_from_path
+    main_content = runpy.run_path(main_path,
+  File "/usr/lib/python3.10/runpy.py", line 289, in run_path
+    return _run_module_code(code, init_globals, run_name,
+  File "/usr/lib/python3.10/runpy.py", line 96, in _run_module_code
+    _run_code(code, mod_globals, init_globals,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/media/limeox/nvme4tb/LimeoXNG/backend/main.py", line 11, in <module>
+    from routes import api_router
+  File "/media/limeox/nvme4tb/LimeoXNG/backend/routes/__init__.py", line 6, in <module>
+    from .institution_ownership_routes import router as institution_ownership_router
+  File "/media/limeox/nvme4tb/LimeoXNG/backend/routes/institution_ownership_routes.py", line 15, in <module>
+    from sqlalchemy.orm import Session
+ModuleNotFoundError: No module named 'sqlalchemy'
+
+

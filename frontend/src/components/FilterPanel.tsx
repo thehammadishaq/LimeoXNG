@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 import '../styles/FilterPanel.css';
 
 interface FilterPanelProps {
@@ -42,18 +43,30 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('peMax', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.peOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('peOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
-          <option value="lt">Less than (&lt;)</option>
-          <option value="gte">Greater than or equal (≥)</option>
-          <option value="gt">Greater than (&gt;)</option>
-          <option value="eq">Equal (=)</option>
-          <option value="ne">Not equal (≠)</option>
-        </select>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.peOperator ?? 'lte'}
+            onChange={(e) => handleFilterChange('peOperator', e.target.value)}
+          >
+            <option value="lte">Less than or equal (≤)</option>
+            <option value="lt">Less than (&lt;)</option>
+            <option value="gte">Greater than or equal (≥)</option>
+            <option value="gt">Greater than (&gt;)</option>
+            <option value="eq">Equal (=)</option>
+            <option value="ne">Not equal (≠)</option>
+          </select>
+          <button
+            type="button"
+            className="sort-direction-toggle"
+            onClick={() => handleFilterChange('peSortDirection', filters.peSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+            title={filters.peSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+          >
+            {filters.peSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+          </button>
+        </div>
       </div>
 
       <div className="filter-item">
@@ -75,18 +88,28 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('forwardPeMax', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.forwardPeOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('forwardPeOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
-          <option value="lt">Less than (&lt;)</option>
-          <option value="gte">Greater than or equal (≥)</option>
-          <option value="gt">Greater than (&gt;)</option>
-          <option value="eq">Equal (=)</option>
-          <option value="ne">Not equal (≠)</option>
-        </select>
+        <div className="filter-selects-container">
+          <select
+            className="operator-select"
+            value={filters.forwardPeOperator ?? 'lte'}
+            onChange={(e) => handleFilterChange('forwardPeOperator', e.target.value)}
+          >
+            <option value="lte">Less than or equal (≤)</option>
+            <option value="lt">Less than (&lt;)</option>
+            <option value="gte">Greater than or equal (≥)</option>
+            <option value="gt">Greater than (&gt;)</option>
+            <option value="eq">Equal (=)</option>
+            <option value="ne">Not equal (≠)</option>
+          </select>
+          <button
+            type="button"
+            className="sort-direction-toggle"
+            onClick={() => handleFilterChange('forwardPeSortDirection', filters.forwardPeSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+            title={filters.forwardPeSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+          >
+            {filters.forwardPeSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+          </button>
+        </div>
       </div>
 
       <div className="filter-item">
@@ -108,19 +131,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('pegMax', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.pegOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('pegOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.pegOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('pegOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('pegSortDirection', filters.pegSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.pegSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.pegSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -141,19 +190,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('pbMax', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.pbOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('pbOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.pbOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('pbOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('pbSortDirection', filters.pbSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.pbSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.pbSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -174,19 +249,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('psMax', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.psOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('psOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.psOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('psOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('psSortDirection', filters.psSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.psSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.psSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -207,18 +308,43 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('evEbitdaMax', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.evEbitdaOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('evEbitdaOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.evEbitdaOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('evEbitdaOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('evEbitdaSortDirection', filters.evEbitdaSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.evEbitdaSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.evEbitdaSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
       </div>
     </div>
   );
@@ -247,19 +373,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('netMarginMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.netMarginOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('netMarginOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.netMarginOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('netMarginOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('netMarginSortDirection', filters.netMarginSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.netMarginSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.netMarginSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -279,19 +431,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('operMarginMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.operMarginOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('operMarginOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.operMarginOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('operMarginOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('operMarginSortDirection', filters.operMarginSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.operMarginSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.operMarginSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -311,19 +489,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('grossMarginMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.grossMarginOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('grossMarginOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.grossMarginOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('grossMarginOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('grossMarginSortDirection', filters.grossMarginSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.grossMarginSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.grossMarginSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -343,19 +547,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('roeMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.roeOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('roeOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.roeOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('roeOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('roeSortDirection', filters.roeSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.roeSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.roeSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -375,19 +605,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('roaMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.roaOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('roaOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.roaOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('roaOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('roaSortDirection', filters.roaSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.roaSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.roaSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -407,18 +663,43 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('roiMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.roiOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('roiOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.roiOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('roiOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('roiSortDirection', filters.roiSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.roiSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.roiSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
       </div>
     </div>
   );
@@ -447,19 +728,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('revGrowthYoyMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.revGrowthYoyOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('revGrowthYoyOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.revGrowthYoyOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('revGrowthYoyOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('revGrowthYoySortDirection', filters.revGrowthYoySortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.revGrowthYoySortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.revGrowthYoySortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -479,19 +786,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('revGrowth3YMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.revGrowth3YOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('revGrowth3YOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.revGrowth3YOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('revGrowth3YOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('revGrowth3YSortDirection', filters.revGrowth3YSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.revGrowth3YSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.revGrowth3YSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -511,19 +844,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('revGrowth5YMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.revGrowth5YOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('revGrowth5YOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.revGrowth5YOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('revGrowth5YOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('revGrowth5YSortDirection', filters.revGrowth5YSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.revGrowth5YSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.revGrowth5YSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -543,19 +902,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('epsGrowthYoyMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.epsGrowthYoyOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('epsGrowthYoyOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.epsGrowthYoyOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('epsGrowthYoyOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('epsGrowthYoySortDirection', filters.epsGrowthYoySortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.epsGrowthYoySortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.epsGrowthYoySortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -575,19 +960,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('epsGrowth3YMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.epsGrowth3YOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('epsGrowth3YOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.epsGrowth3YOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('epsGrowth3YOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('epsGrowth3YSortDirection', filters.epsGrowth3YSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.epsGrowth3YSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.epsGrowth3YSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -607,19 +1018,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('epsGrowth5YMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.epsGrowth5YOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('epsGrowth5YOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.epsGrowth5YOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('epsGrowth5YOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('epsGrowth5YSortDirection', filters.epsGrowth5YSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.epsGrowth5YSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.epsGrowth5YSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -639,19 +1076,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('cashFlowGrowthMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.cashFlowGrowthOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('cashFlowGrowthOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.cashFlowGrowthOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('cashFlowGrowthOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('cashFlowGrowthSortDirection', filters.cashFlowGrowthSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.cashFlowGrowthSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.cashFlowGrowthSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -671,18 +1134,43 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('ebitdaGrowthMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.ebitdaGrowthOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('ebitdaGrowthOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.ebitdaGrowthOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('ebitdaGrowthOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('ebitdaGrowthSortDirection', filters.ebitdaGrowthSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.ebitdaGrowthSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.ebitdaGrowthSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
       </div>
     </div>
   );
@@ -712,19 +1200,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('deRatioMax', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.deRatioOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('deRatioOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.deRatioOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('deRatioOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('deRatioSortDirection', filters.deRatioSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.deRatioSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.deRatioSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -745,19 +1259,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('interestCoverageMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.interestCoverageOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('interestCoverageOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.interestCoverageOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('interestCoverageOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('interestCoverageSortDirection', filters.interestCoverageSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.interestCoverageSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.interestCoverageSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -778,19 +1318,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('currentRatioMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.currentRatioOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('currentRatioOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.currentRatioOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('currentRatioOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('currentRatioSortDirection', filters.currentRatioSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.currentRatioSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.currentRatioSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -811,18 +1377,43 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('quickRatioMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.quickRatioOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('quickRatioOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.quickRatioOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('quickRatioOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('quickRatioSortDirection', filters.quickRatioSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.quickRatioSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.quickRatioSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
       </div>
     </div>
   );
@@ -851,19 +1442,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('fcfPerShareMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.fcfPerShareOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('fcfPerShareOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.fcfPerShareOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('fcfPerShareOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('fcfPerShareSortDirection', filters.fcfPerShareSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.fcfPerShareSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.fcfPerShareSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -883,19 +1500,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('evFcfMax', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.evFcfOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('evFcfOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.evFcfOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('evFcfOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('evFcfSortDirection', filters.evFcfSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.evFcfSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.evFcfSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -915,18 +1558,43 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('cashFlowGrowthMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.cashFlowGrowthOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('cashFlowGrowthOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.cashFlowGrowthOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('cashFlowGrowthOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('cashFlowGrowthSortDirection', filters.cashFlowGrowthSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.cashFlowGrowthSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.cashFlowGrowthSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
       </div>
     </div>
   );
@@ -955,19 +1623,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('ytdReturnMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.ytdReturnOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('ytdReturnOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.ytdReturnOperator ?? 'gte'}
+
+            onChange={(e) => handleFilterChange('ytdReturnOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('ytdReturnSortDirection', filters.ytdReturnSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.ytdReturnSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.ytdReturnSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -987,19 +1681,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('return5DMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.return5DOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('return5DOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.return5DOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('return5DOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('return5DSortDirection', filters.return5DSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.return5DSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.return5DSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -1019,19 +1739,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('return1MMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.return1MOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('return1MOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.return1MOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('return1MOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('return1MSortDirection', filters.return1MSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.return1MSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.return1MSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -1051,19 +1797,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('return3MMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.return3MOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('return3MOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.return3MOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('return3MOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('return3MSortDirection', filters.return3MSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.return3MSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.return3MSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -1083,18 +1855,43 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('relSp5001YMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.relSp5001YOperator ?? 'gte'}
-          onChange={(e) => handleFilterChange('relSp5001YOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.relSp5001YOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('relSp5001YOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('relSp5001YSortDirection', filters.relSp5001YSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.relSp5001YSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.relSp5001YSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
       </div>
     </div>
   );
@@ -1131,19 +1928,45 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('latestCloseMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.latestCloseOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('latestCloseOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.latestCloseOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('latestCloseOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
-      </div>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('latestCloseSortDirection', filters.latestCloseSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.latestCloseSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.latestCloseSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
+
+        </div>
 
       <div className="filter-item">
         <label>
@@ -1163,18 +1986,43 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
           onChange={(e) => handleFilterChange('latestVolumeMin', e.target.value)}
           placeholder="Any"
         />
-        <select
-          className="operator-select"
-          value={filters.latestVolumeOperator ?? 'lte'}
-          onChange={(e) => handleFilterChange('latestVolumeOperator', e.target.value)}
-        >
-          <option value="lte">Less than or equal (≤)</option>
+                <div className="filter-selects-container">
+
+          <select
+
+                    className="operator-select"
+            value={filters.latestVolumeOperator ?? 'lte'}
+
+            onChange={(e) => handleFilterChange('latestVolumeOperator', e.target.value)}
+
+          >
+
+            <option value="lte">Less than or equal (≤)</option>
           <option value="lt">Less than (&lt;)</option>
           <option value="gte">Greater than or equal (≥)</option>
           <option value="gt">Greater than (&gt;)</option>
           <option value="eq">Equal (=)</option>
           <option value="ne">Not equal (≠)</option>
-        </select>
+
+          </select>
+
+          <button
+
+            type="button"
+
+            className="sort-direction-toggle"
+
+            onClick={() => handleFilterChange('latestVolumeSortDirection', filters.latestVolumeSortDirection === 'Asc' ? 'Desc' : 'Asc')}
+
+            title={filters.latestVolumeSortDirection === 'Asc' ? 'Ascending' : 'Descending'}
+
+          >
+
+            {filters.latestVolumeSortDirection === 'Asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+
+          </button>
+
+        </div>
       </div>
     </div>
   );

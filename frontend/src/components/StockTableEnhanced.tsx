@@ -5,6 +5,104 @@ import { mockNews } from '../mockData';
 import { cn } from '../lib/utils';
 import type { LatestCandleDbItem } from '../services/api';
 
+// Centralized metric tooltips for financial columns (used by table headers / UI help)
+const metricTooltips: Record<string, string> = {
+  // ---- Common valuation & balance sheet metrics ----
+  bookValue: "Book Value: shareholders’ equity per share. Rising book value supports long-term value and can put a floor under the stock when P/B is low.",
+  tangibleBookValue: "Tangible Book Value: equity minus intangibles and goodwill per share. Important in distress; low price vs TBV can signal deep value or balance sheet risk.",
+  pb: "P/B (Price to Book): share price divided by book value per share. High P/B implies strong profitability/growth expectations; low P/B can mean value or structural problems.",
+  ptbv: "P/TBV (Price to Tangible Book): price vs tangible book value per share. Very low P/TBV often signals either distress or a potential deep-value rerating case.",
+  ev: "Enterprise Value (EV): market value of equity plus net debt. Used as total firm value; changes reflect both stock moves and leverage decisions.",
+  ps: "P/S (Price to Sales): market cap ÷ revenue. High P/S relies on strong future growth or margin expansion; if growth slows, the multiple often compresses and stock can fall.",
+  psTTM: "P/S TTM: price to sales based on trailing 12-month revenue. Sensitive to recent revenue trends; slowdown usually pressures this multiple and the stock.",
+  pe: "P/E (Price to Earnings): price ÷ EPS. High P/E means investors pay more for each dollar of earnings; earnings disappointments can trigger sharp price drops via multiple compression.",
+  peTTM: "P/E TTM: price to earnings based on last 12 months’ EPS. Reacts quickly to recent earnings changes and guidance surprises.",
+  pfcf: "P/FCF (Price to Free Cash Flow): price vs free cash flow. Lower P/FCF suggests cash-flow value; higher ratios require confidence that FCF will grow.",
+  pfcfTTM: "P/FCF TTM: valuation vs trailing 12-month free cash flow. Sensitive to recent capex and working capital swings that affect investor sentiment.",
+  totalRatio: "Total Ratio: composite balance-sheet/coverage metric from the data provider. Weakening signals rising financial risk, which usually weighs on the stock.",
+
+  // ---- Liquidity & working capital ----
+  cashRatio: "Cash Ratio: cash & equivalents ÷ current liabilities. Very low levels raise liquidity concerns; very high levels show safety but may imply idle cash.",
+  currentRatio: "Current Ratio: current assets ÷ current liabilities. Too low can signal near-term financing risk; healthy levels reduce default fears and support valuations.",
+  quickRatio: "Quick Ratio: (cash + near-cash + receivables) ÷ current liabilities. Focuses on most liquid assets; low quick ratio can spook investors in stress periods.",
+  cashRatioTTM: "Cash Ratio (TTM): same as cash ratio, viewed over the last year’s balance snapshots. Persistent weakness can pressure the stock on liquidity worries.",
+  currentRatioTTM: "Current Ratio (TTM): trailing view of short-term liquidity. Trend deterioration is usually viewed negatively.",
+  quickRatioTTM: "Quick Ratio (TTM): trailing view of highly liquid coverage. Sustained declines can hurt confidence, especially in highly leveraged firms.",
+
+  // ---- Profitability (margins & earnings) ----
+  ebitPerShare: "EBIT Per Share: operating profit per share. Growth indicates stronger core earnings power and often supports stock outperformance.",
+  eps: "EPS (Earnings Per Share): net income per share. One of the main stock drivers; consistent EPS beats and growth usually push the stock higher.",
+  ebitPerShareTTM: "EBIT Per Share TTM: last 12 months’ operating profit per share. Captures recent profit cycles that can move the stock quickly.",
+  epsTTM: "EPS TTM: trailing 12-month earnings per share. Often used in valuation; negative turns or sharp drops typically hit the share price.",
+  grossMargin: "Gross Margin: gross profit ÷ revenue. Rising margins suggest good pricing power or lower input costs and are typically bullish for the stock.",
+  operatingMargin: "Operating Margin: operating income ÷ revenue. Key metric of core profitability; expanding margins usually lead to higher valuations.",
+  netMargin: "Net Margin: net income ÷ revenue. Summarizes overall profitability; shrinking net margin can lead to multiple compression and price weakness.",
+  pretaxMargin: "Pretax Margin: earnings before tax ÷ revenue. Shows underlying profitability before tax effects; declines are an early warning for earnings.",
+  fcfMargin: "FCF Margin: free cash flow ÷ revenue. High and rising FCF margins support higher valuations as investors favor cash-generative businesses.",
+  grossMarginTTM: "Gross Margin TTM: trailing 12-month gross margin. Markets react strongly to sustained margin trend changes.",
+  operatingMarginTTM: "Operating Margin TTM: last 12-month operating margin. Trend improvement supports re-rating; deterioration often hurts the stock.",
+  netMarginTTM: "Net Margin TTM: trailing net margin. Persistent compression tends to weigh on sentiment.",
+  pretaxMarginTTM: "Pretax Margin TTM: trailing 12-month pretax profitability. Deterioration can foreshadow weaker EPS and stock performance.",
+  fcfMarginTTM: "FCF Margin TTM: trailing free cash flow as a percent of sales. Strong trends attract long-term, quality-focused investors.",
+
+  // ---- Cash flow per share ----
+  fcfPerShareTTM: "FCF Per Share TTM: trailing 12-month free cash flow per share. Rising FCF per share is often rewarded with a higher stock multiple.",
+
+  // ---- Valuation vs fundamentals (EV multiples) ----
+  evEbitda: "EV/EBITDA: enterprise value ÷ EBITDA. Core valuation multiple; high values require strong growth, while low values can signal value or risk.",
+  evRevenue: "EV/Revenue: enterprise value ÷ revenue. Used when earnings are weak or volatile; sensitive to revenue growth expectations.",
+  evEbitdaTTM: "EV/EBITDA TTM: valuation vs trailing 12-month EBITDA. Moves as either EV or EBITDA change; big shifts often drive stock re-rating.",
+  evRevenueTTM: "EV/Revenue TTM: valuation vs trailing 12-month revenue. Revenue surprises typically change this multiple and influence the price.",
+
+  // ---- Capital structure & leverage ----
+  longtermDebtTotalAsset: "Long-Term Debt / Total Assets: share of assets financed by long-term debt. Higher ratios increase financial risk and can pressure valuation.",
+  longtermDebtTotalCapital: "Long-Term Debt / Total Capital: long-term debt ÷ (debt + equity). Rising leverage boosts risk and can make the stock more volatile.",
+  longtermDebtTotalEquity: "Long-Term Debt / Equity: long-term debt relative to shareholders’ equity. High values mean aggressive leverage, which magnifies both gains and losses.",
+  netDebtToTotalCapital: "Net Debt / Total Capital: (debt − cash) ÷ total capital. Lower or negative values (net cash) generally support higher valuations.",
+  netDebtToTotalEquity: "Net Debt / Equity: net debt relative to equity. High values make the stock sensitive to credit conditions and downturns.",
+  totalDebtToEquity: "Total Debt / Equity: all debt relative to equity. High leverage can lead to sharp sell-offs if earnings weaken or rates rise.",
+  totalDebtToTotalAsset: "Total Debt / Total Assets: total debt as a share of assets. Higher levels increase financial risk, often limiting valuation upside.",
+  totalDebtToTotalCapital: "Total Debt / Total Capital: total debt ÷ (debt + equity). Markets tend to penalize very high ratios, especially in cyclical businesses.",
+  longtermDebtTotalAssetTTM: "Long-Term Debt / Assets (TTM): trailing view of structural leverage. Trend increases are usually seen as risky.",
+  longtermDebtTotalCapitalTTM: "Long-Term Debt / Capital (TTM): trailing leverage mix. Persistent rise can cap valuation multiples.",
+  longtermDebtTotalEquityTTM: "Long-Term Debt / Equity (TTM): trailing view of structural leverage. Deleveraging trends are often a positive catalyst.",
+  netDebtToTotalCapitalTTM: "Net Debt / Capital (TTM): trailing net leverage. Moving toward net cash typically supports the stock.",
+  netDebtToTotalEquityTTM: "Net Debt / Equity (TTM): trailing net leverage vs equity. High and rising numbers can weigh heavily on sentiment.",
+  totalDebtToEquityTTM: "Total Debt / Equity (TTM): trailing leverage profile. Markets reward credible deleveraging plans.",
+  totalDebtToTotalAssetTTM: "Total Debt / Assets (TTM): trailing use of debt in the balance sheet. Rising ratios increase perceived risk.",
+  totalDebtToTotalCapitalTTM: "Total Debt / Capital (TTM): trailing leverage mix. High levels can restrain how high the stock’s multiple can go.",
+  totalRatioTTM: "Total Ratio (TTM): trailing composite risk/coverage measure. Improving trends support confidence in solvency.",
+
+  // ---- Returns & efficiency ----
+  assetTurnoverTTM: "Asset Turnover TTM: trailing revenue ÷ average assets. Higher turnover means more efficient use of assets and supports stronger ROA/ROE.",
+  inventoryTurnover: "Inventory Turnover: cost of goods sold ÷ average inventory. Higher turnover means efficient inventory management; very low levels hint at weak demand.",
+  inventoryTurnoverTTM: "Inventory Turnover TTM: trailing inventory efficiency. Sudden drops can signal demand issues that may hit the stock.",
+  receivablesTurnover: "Receivables Turnover: net credit sales ÷ average receivables. Higher turnover suggests faster collection and healthy customers.",
+  receivablesTurnoverTTM: "Receivables Turnover TTM: trailing collection efficiency. Deterioration can flag credit or demand problems before earnings show it.",
+  roa: "ROA (Return on Assets): net income ÷ total assets. Higher ROA indicates efficient asset use and is associated with better long-term stock performance.",
+  roe: "ROE (Return on Equity): net income ÷ equity. Sustained high ROE, without excessive leverage, is strongly linked to premium valuations.",
+  roic: "ROIC (Return on Invested Capital): after-tax operating profit ÷ invested capital. ROIC above the cost of capital creates value and usually supports strong stock performance.",
+  rotc: "ROTC (Return on Total Capital): earnings vs total capital (debt + equity). Higher values indicate efficient use of financing and tend to be rewarded by the market.",
+  roaTTM: "ROA TTM: trailing 12-month ROA. Rising ROA is a quality signal and often coincides with stock re-rating.",
+  roeTTM: "ROE TTM: trailing return on equity. Investors closely track ROE trends when assigning valuation multiples.",
+  roicTTM: "ROIC TTM: trailing return on invested capital. Improvements vs cost of capital are typically bullish.",
+  rotcTTM: "ROTC TTM: trailing return on total capital. Declines can indicate weaker capital efficiency and weigh on the stock.",
+
+  // ---- Revenue, sales & SG&A ----
+  salesPerShare: "Sales Per Share: revenue ÷ shares. Growth in sales per share underpins future earnings and cash flow; stagnation can cap the stock.",
+  salesPerShareTTM: "Sales Per Share TTM: trailing 12-month revenue per share. Useful for tracking recent demand trends that drive sentiment.",
+  sgaToSale: "SG&A to Sales: selling, general & admin expenses ÷ revenue. Falling ratio suggests better cost control; rising ratio can hurt margins and valuation.",
+  sgaToSaleTTM: "SG&A to Sales TTM: trailing overhead burden. Persistent increases without revenue payoff are viewed negatively.",
+
+  // ---- Dividends / payouts ----
+  payoutRatio: "Payout Ratio: dividends ÷ earnings. Moderate ratios are seen as sustainable; very high ratios can signal risk of a dividend cut, which often hits the stock.",
+  payoutRatioTTM: "Payout Ratio TTM: trailing 12-month dividend share of earnings. Rising to unsustainable levels often precedes dividend cuts and negative reactions.",
+
+  // ---- Book values (quarterly) ----
+  bookValueTTM: "Book Value (Quarterly): most recent equity per share reading. Sudden drops can indicate write-downs or losses and may pressure the stock.",
+  tangibleBookValueTTM: "Tangible Book Value (Quarterly): most recent tangible equity per share. Important for downside protection in stressed situations.",
+};
+
 // Simple Skeleton component
 const Skeleton = ({ className = '', style, ...props }: { className?: string; style?: React.CSSProperties; [key: string]: any }) => {
   return (

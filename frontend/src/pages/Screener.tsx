@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Moon, Sun, ChevronDown, ChevronUp } from 'lucide-react';
+import { Moon, Sun, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { filterOptions, signals, orderByOptions } from '../mockData';
 import FilterPanel from '../components/FilterPanel';
@@ -697,29 +697,50 @@ const Screener = () => {
             color: 'var(--text-secondary)',
           }}
         >
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <div>
-            <button
-              type="button"
-              className="btn-secondary"
-              style={{ marginRight: 4, padding: '2px 8px', fontSize: 11 }}
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || loading}
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ padding: '2px 8px', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1 || loading}
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>Page</span>
+            <select
+              value={currentPage}
+              onChange={(e) => handlePageChange(Number(e.target.value))}
+              disabled={loading}
+              style={{
+                fontSize: 11,
+                padding: '2px 6px',
+                borderRadius: 4,
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+              }}
             >
-              Prev
-            </button>
-            <button
-              type="button"
-              className="btn-secondary"
-              style={{ padding: '2px 8px', fontSize: 11 }}
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || loading}
-            >
-              Next
-            </button>
+              {Array.from({ length: totalPages }, (_, idx) => {
+                const page = idx + 1;
+                return (
+                  <option key={page} value={page}>
+                    {page}
+                  </option>
+                );
+              })}
+            </select>
+            <span>of {totalPages}</span>
           </div>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ padding: '2px 8px', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages || loading}
+          >
+            <ChevronRight size={14} />
+          </button>
         </div>
       )}
 

@@ -123,9 +123,17 @@
   box-shadow: 0 0 2px rgba(0, 136, 204, 0.3);
 }
 
+/* Operator and Sort Direction Container */
+.filter-selects-container {
+  display: flex;
+  gap: 4px;
+  margin-top: 0px;
+  width: 100%;
+}
+
 /* Operator Select Styling */
 .filter-item .operator-select {
-  margin-top: 0px;
+  flex: 1;
   padding: 4px 6px;
   border: 1px solid var(--border-color);
   border-radius: 2px;
@@ -133,8 +141,8 @@
   color: var(--link-color) !important;
   font-size: 11px;
   cursor: pointer;
-  width: 100%;
   transition: all 0.2s;
+  min-width: 0;
 }
 
 .filter-item .operator-select:hover {
@@ -155,6 +163,41 @@
   background-color: var(--bg-primary);
   color: var(--text-primary);
   padding: 4px;
+}
+
+/* Sort Direction Toggle Button Styling */
+.filter-item .sort-direction-toggle {
+  flex: 0 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  background-color: var(--bg-primary);
+  color: var(--link-color) !important;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 32px;
+  height: auto;
+}
+
+.filter-item .sort-direction-toggle:hover {
+  border-color: var(--link-color);
+  background-color: var(--bg-tertiary);
+  color: var(--link-color) !important;
+}
+
+.filter-item .sort-direction-toggle:focus {
+  outline: none;
+  border-color: var(--link-color);
+  box-shadow: 0 0 2px rgba(0, 136, 204, 0.3);
+  background-color: var(--bg-primary);
+  color: var(--link-color) !important;
+}
+
+.filter-item .sort-direction-toggle:active {
+  background-color: var(--bg-tertiary);
 }
 
 .filter-separator {

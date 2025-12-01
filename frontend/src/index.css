@@ -35,6 +35,13 @@ code {
    Handles both OVERLAY and CLASSIC scrollbars
    ============================================ */
 
+/* Global custom scrollbar for the entire app (all scrollable areas) */
+html,
+body {
+    scrollbar-width: thin;
+    scrollbar-color: #6b7280 #f5f5f5;
+}
+
 /* Force scrollbar to always be visible and styled */
 div.scrollbar-custom,
 .scrollbar-custom,
@@ -51,6 +58,9 @@ div.table-container.scrollbar-custom,
 
 /* Custom Scrollbar - Light Theme - Force on ALL screen sizes and device modes */
 /* Works for both OVERLAY and CLASSIC scrollbars */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar,
 div.scrollbar-custom::-webkit-scrollbar,
 .scrollbar-custom::-webkit-scrollbar,
 div.table-container.scrollbar-custom::-webkit-scrollbar,
@@ -68,7 +78,11 @@ div.scrollbar-custom *::-webkit-scrollbar,
     opacity: 1 !important;
 }
 
-/* Remove arrow buttons from scrollbar - All directions */
+/* Remove arrow buttons from scrollbar - All directions (maximum coverage) */
+::-webkit-scrollbar-button,
+html::-webkit-scrollbar-button,
+body::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button,
 div.scrollbar-custom::-webkit-scrollbar-button,
 .scrollbar-custom::-webkit-scrollbar-button,
 div.table-container.scrollbar-custom::-webkit-scrollbar-button,
@@ -84,6 +98,14 @@ div.scrollbar-custom *::-webkit-scrollbar-button,
 }
 
 /* Remove arrow buttons - Specific directions */
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment,
+html::-webkit-scrollbar-button:start:decrement,
+html::-webkit-scrollbar-button:end:increment,
+body::-webkit-scrollbar-button:start:decrement,
+body::-webkit-scrollbar-button:end:increment,
+*::-webkit-scrollbar-button:start:decrement,
+*::-webkit-scrollbar-button:end:increment,
 div.scrollbar-custom::-webkit-scrollbar-button:start:decrement,
 div.scrollbar-custom::-webkit-scrollbar-button:end:increment,
 .scrollbar-custom::-webkit-scrollbar-button:start:decrement,
@@ -97,7 +119,24 @@ div.table-container.scrollbar-custom::-webkit-scrollbar-button:end:increment,
     height: 0 !important;
 }
 
+/* Extra safety: explicitly hide single-button arrows at both ends (some WebKit variants) */
+::-webkit-scrollbar-button:single-button,
+html::-webkit-scrollbar-button:single-button,
+body::-webkit-scrollbar-button:single-button,
+*::-webkit-scrollbar-button:single-button,
+::-webkit-scrollbar-button:horizontal:decrement,
+::-webkit-scrollbar-button:horizontal:increment,
+::-webkit-scrollbar-button:vertical:decrement,
+::-webkit-scrollbar-button:vertical:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
 /* Remove corner between scrollbars */
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-corner,
 div.scrollbar-custom::-webkit-scrollbar-corner,
 .scrollbar-custom::-webkit-scrollbar-corner,
 div.table-container.scrollbar-custom::-webkit-scrollbar-corner,
@@ -106,6 +145,9 @@ div.table-container.scrollbar-custom::-webkit-scrollbar-corner,
     background: transparent !important;
 }
 
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track,
 div.scrollbar-custom::-webkit-scrollbar-track,
 .scrollbar-custom::-webkit-scrollbar-track,
 div.table-container.scrollbar-custom::-webkit-scrollbar-track,
@@ -123,6 +165,9 @@ div.scrollbar-custom *::-webkit-scrollbar-track,
     display: block !important;
 }
 
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb,
 div.scrollbar-custom::-webkit-scrollbar-thumb,
 .scrollbar-custom::-webkit-scrollbar-thumb,
 div.table-container.scrollbar-custom::-webkit-scrollbar-thumb,
@@ -701,6 +746,9 @@ html.dark-theme .scrollbar-custom *::-webkit-scrollbar-thumb:active,
   max-height: 380px;
   overflow-y: auto;
   padding-right: 4px;
+  /* Ensure custom scrollbar styling also applies here (especially in Firefox) */
+  scrollbar-width: thin;
+  scrollbar-color: #6b7280 #f5f5f5;
 }
 
 .results-info {
@@ -1328,7 +1376,8 @@ html.dark-theme .news-panel .table-container.scrollbar-custom,
   table-layout: fixed; /* Spread columns across full width */
 }
 
-.ownership-panel .stock-table {
+.ownership-panel .stock-table,
+.ownership-panel .data-table {
   width: 100%;
   margin: 0;
 }
@@ -1960,6 +2009,7 @@ html.dark-theme .news-panel .table-container.scrollbar-custom,
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%; /* Ensure side-panel sections (e.g. Latest News) use full available row width */
 }
 
 .side-panel-row {

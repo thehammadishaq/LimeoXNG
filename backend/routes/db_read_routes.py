@@ -382,7 +382,146 @@ async def get_screener_symbols(request: ScreenerSymbolsRequest):
         # Combine ticker and company name matches
         ticker_set = ticker_matches | company_name_matches
 
-    symbols_sorted = sorted(ticker_set)
+    # 6) Apply sorting based on sort direction if specified
+    symbols_sorted: List[str] = []
+    
+    # Mapping from sort direction filter keys to metric keys in BasicFinancials
+    sort_metric_mapping: Dict[str, str] = {
+        # Valuation
+        "peSortDirection": "peTTM",
+        "forwardPeSortDirection": "forwardPE",
+        "pegSortDirection": "pegTTM",
+        "pbSortDirection": "pb",
+        "psSortDirection": "psTTM",
+        "evEbitdaSortDirection": "evEbitdaTTM",
+        # Profitability
+        "netMarginSortDirection": "netProfitMarginTTM",
+        "operMarginSortDirection": "operatingMarginTTM",
+        "grossMarginSortDirection": "grossMarginTTM",
+        "roeSortDirection": "roeTTM",
+        "roaSortDirection": "roaTTM",
+        "roiSortDirection": "roicTTM",
+        # Growth
+        "revGrowthYoySortDirection": "revenueGrowthTTMYoy",
+        "revGrowth3YSortDirection": "revenueGrowth3Y",
+        "revGrowth5YSortDirection": "revenueGrowth5Y",
+        "epsGrowthYoySortDirection": "epsGrowthTTMYoy",
+        "epsGrowth3YSortDirection": "epsGrowth3Y",
+        "epsGrowth5YSortDirection": "epsGrowth5Y",
+        "cashFlowGrowthSortDirection": "focfCagr5Y",
+        "ebitdaGrowthSortDirection": "ebitdaCagr5Y",
+        # Financial Health
+        "deRatioSortDirection": "totalDebtToEquity",
+        "interestCoverageSortDirection": "netInterestCoverageAnnual",
+        "currentRatioSortDirection": "currentRatioAnnual",
+        "quickRatioSortDirection": "quickRatioAnnual",
+        # Cash Flow
+        "fcfPerShareSortDirection": "freeCashFlowPerShareTTM",
+        "evFcfSortDirection": "currentEv/freeCashFlowTTM",
+        # Price Strength
+        "ytdReturnSortDirection": "yearToDatePriceReturnDaily",
+        "return5DSortDirection": "5DayPriceReturnDaily",
+        "return1MSortDirection": "monthToDatePriceReturnDaily",
+        "return3MSortDirection": "13WeekPriceReturnDaily",
+        "relSp5001YSortDirection": "priceRelativeToS&P50052Week",
+        # OHLCV
+        "latestCloseSortDirection": "close",  # From LatestCandle
+        "latestVolumeSortDirection": "volume",  # From LatestCandle
+    }
+    
+    # Find which sort direction is set (priority: first non-empty one found)
+    sort_direction_key: Optional[str] = None
+    sort_direction: Optional[str] = None
+    sort_metric_key: Optional[str] = None
+    
+    for key, metric_key in sort_metric_mapping.items():
+        sort_dir = filters.get(key)
+        if sort_dir and sort_dir in ("Asc", "Desc"):
+            sort_direction_key = key
+            sort_direction = sort_dir
+            sort_metric_key = metric_key
+            break
+    
+    if sort_direction and sort_metric_key and ticker_set:
+        # Fetch BasicFinancials or LatestCandle documents for sorting
+        ticker_list = list(ticker_set)
+        
+        # Handle OHLCV sorting separately (uses LatestCandle collection)
+        if sort_metric_key in ("close", "volume"):
+            lc_docs = await LatestCandle.find(
+                {"ticker": {"$in": ticker_list}, "resolution": "D"}
+            ).to_list()
+            
+            # Create a map of ticker -> metric value
+            ticker_metric_map: Dict[str, Optional[float]] = {}
+            for doc in lc_docs:
+                value = getattr(doc, sort_metric_key, None)
+                try:
+                    ticker_metric_map[doc.ticker] = float(value) if value is not None else None
+                except (ValueError, TypeError):
+                    ticker_metric_map[doc.ticker] = None
+            
+            # Sort tickers by metric value
+            def sort_key(ticker: str) -> tuple:
+                value = ticker_metric_map.get(ticker)
+                is_missing = value is None
+                # For missing values, use a neutral numeric value (0.0); the
+                # primary sort key (is_missing) ensures they're grouped at the
+                # start/end, and we fall back to ticker symbol for stability.
+                numeric_value = 0.0 if is_missing else float(value)
+                signed_value = numeric_value if sort_direction == "Asc" else -numeric_value
+                return (1 if is_missing and sort_direction == "Asc" else 0 if is_missing else 0,
+                        signed_value,
+                        ticker)
+            
+            symbols_sorted = sorted(ticker_list, key=sort_key)
+            
+            # Add any tickers that weren't found in LatestCandle (handle gracefully)
+            found_tickers = set(ticker_metric_map.keys())
+            missing_tickers = ticker_set - found_tickers
+            if missing_tickers:
+                # Append missing tickers at the end (sorted alphabetically)
+                symbols_sorted.extend(sorted(missing_tickers))
+        else:
+            # Handle BasicFinancials sorting
+            bf_docs = await BasicFinancials.find(
+                {"ticker": {"$in": ticker_list}}
+            ).to_list()
+            
+            # Create a map of ticker -> metric value
+            ticker_metric_map: Dict[str, Optional[float]] = {}
+            for doc in bf_docs:
+                metric_data = doc.data.get("metric", {}) if doc.data else {}
+                value = metric_data.get(sort_metric_key)
+                try:
+                    ticker_metric_map[doc.ticker] = float(value) if value is not None else None
+                except (ValueError, TypeError):
+                    ticker_metric_map[doc.ticker] = None
+            
+            # Sort tickers by metric value
+            def sort_key(ticker: str) -> tuple:
+                value = ticker_metric_map.get(ticker)
+                is_missing = value is None
+                # Use neutral numeric value for missing metrics; is_missing flag
+                # controls whether they appear at start/end. Ticker is used as
+                # a final tie‑breaker to keep ordering stable.
+                numeric_value = 0.0 if is_missing else float(value)
+                signed_value = numeric_value if sort_direction == "Asc" else -numeric_value
+                return (1 if is_missing and sort_direction == "Asc" else 0 if is_missing else 0,
+                        signed_value,
+                        ticker)
+            
+            symbols_sorted = sorted(ticker_list, key=sort_key)
+            
+            # Add any tickers that weren't found in BasicFinancials (handle gracefully)
+            found_tickers = set(ticker_metric_map.keys())
+            missing_tickers = ticker_set - found_tickers
+            if missing_tickers:
+                # Append missing tickers at the end (sorted alphabetically)
+                symbols_sorted.extend(sorted(missing_tickers))
+    else:
+        # No sort direction specified, default to alphabetical
+        symbols_sorted = sorted(ticker_set)
 
     return ScreenerSymbolsResponse(symbols=symbols_sorted, total=len(symbols_sorted))
 
