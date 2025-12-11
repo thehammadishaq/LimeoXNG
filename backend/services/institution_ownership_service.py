@@ -27,10 +27,33 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 
+from config.settings import settings
+import os
 
-# NOTE: For now we keep the DATABASE_URL inline, mirroring the standalone file.
-# If needed, this can be moved to settings later (e.g. settings.POSTGRES_URL).
-DATABASE_URL = "postgresql://talha:talha1122@192.168.1.10:5432/sec_db"
+
+def _resolve_database_url() -> str:
+    """
+    Resolve Postgres connection string.
+
+    Priority:
+    1) backend/.env -> psql (backward compatible with your existing env)
+    2) backend/.env -> POSTGRES_URL (new, explicit setting)
+    """
+    env_psql = os.getenv("psql")
+    if env_psql:
+        return env_psql
+
+    if settings.POSTGRES_URL:
+        return settings.POSTGRES_URL
+
+    raise RuntimeError(
+        "Postgres DATABASE_URL is not configured. "
+        "Set 'psql' or 'POSTGRES_URL' in backend/.env, e.g. "
+        "psql=postgresql://user:password@host:5432/sec_db"
+    )
+
+
+DATABASE_URL = _resolve_database_url()
 
 engine = create_engine(DATABASE_URL, echo=False, future=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
@@ -153,6 +176,7 @@ async def get_institution_ownership_by_ticker(
     db: Session,
     ticker: str,
     current_date: Optional[date] = None,
+    limit: int = 100,
 ) -> List[Dict[str, Any]]:
     """
     Get all institutions holding a ticker from past 5 months with ownership calculation.
@@ -266,8 +290,8 @@ async def get_institution_ownership_by_ticker(
             if existing_date and current_date_str and existing_date >= current_date_str:
                 continue
 
-        # Limit to 100 unique institutions
-        if len(filer_map) >= 100 and filer_id not in filer_map:
+        # Limit to `limit` unique institutions
+        if len(filer_map) >= limit and filer_id not in filer_map:
             continue
 
         shares = float(position.shares) if position.shares else None
@@ -305,6 +329,7 @@ async def get_institution_ownership_by_ticker(
         reverse=True,
     )
 
-    return holders[:100]
+    # Apply limit at the end as well (defensive)
+    return holders[:limit]
 
 

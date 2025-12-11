@@ -5,7 +5,7 @@
  */
 
 // Backend API configuration
-const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://192.168.1.150:8001/api/v1';
+export const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://192.168.1.150:8001/api/v1';
 
 // Debug: Log backend configuration
 if (typeof window !== 'undefined') {
@@ -242,6 +242,13 @@ export interface InsiderTransactionsFetchResponse {
   data: InsiderTransaction[];
   saved_to_db: boolean;
   total_transactions: number;
+}
+
+export interface PeersFetchResponse {
+  symbol: string;
+  peers: string[];
+  grouping: string;
+  count: number;
 }
 
 
@@ -1015,6 +1022,48 @@ export async function fetchInsiderTransactionsFromDb(
     return backendResponse.data ?? null;
   } catch (error) {
     console.error(`❌ Error fetching insider transactions for ${ticker} from DB:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch company peers from Backend API (Backend → Finnhub /stock/peers)
+ */
+export async function fetchCompanyPeers(
+  ticker: string,
+  grouping: string = 'subIndustry'
+): Promise<string[] | null> {
+  try {
+    const tickerUpper = ticker.toUpperCase().trim();
+    const url = `${BACKEND_API_BASE_URL}/finnhub/stock/peers?symbol=${encodeURIComponent(tickerUpper)}&grouping=${encodeURIComponent(grouping)}`;
+    console.log(`🌐 Fetching company peers for ${tickerUpper} via Backend API`);
+    console.log(`   URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(`📡 Backend peers response status for ${tickerUpper}:`, response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Backend peers API failed for ${tickerUpper}:`);
+      console.error(`   Status: ${response.status} ${response.statusText}`);
+      console.error(`   Error: ${errorText}`);
+      return null;
+    }
+
+    const backendResponse = (await response.json()) as PeersFetchResponse;
+    console.log(`📦 Backend peers response for ${tickerUpper}:`, backendResponse);
+    return backendResponse.peers ?? null;
+  } catch (error) {
+    console.error(`❌ Error fetching company peers for ${ticker} from backend:`, error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('💡 Network error - make sure backend server is running on', BACKEND_API_BASE_URL);
+    }
     return null;
   }
 }
@@ -2120,4 +2169,62 @@ export function transformStockData(apiStock: StockData): any {
     fromCache: false,
     fetchedAt: apiStock.fetched_at || new Date().toISOString()
   };
+}
+
+// Seeking Alpha Analysis Articles
+export interface SeekingAlphaArticle {
+  title: string;
+  signal?: string | null;
+  time?: string | null;
+  published_date?: string | null; // ISO format datetime string
+  tickers: string[];
+  author?: string | null;
+  summary: string;
+  url: string;
+}
+
+export interface SeekingAlphaAnalysisResponse {
+  items: SeekingAlphaArticle[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+// Fetch from database with pagination
+export async function fetchSeekingAlphaAnalysisFromDb(
+  page: number = 1,
+  pageSize: number = 50
+): Promise<SeekingAlphaAnalysisResponse> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/db/seekingalpha-analysis?page=${page}&page_size=${pageSize}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data: SeekingAlphaAnalysisResponse = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching Seeking Alpha analysis from database:', error);
+    throw error;
+  }
+}
+
+// Fetch latest from scraper API (to refresh database)
+export async function fetchSeekingAlphaAnalysisLatest(): Promise<SeekingAlphaArticle[]> {
+  try {
+    const url = `${BACKEND_API_BASE_URL}/scraper/seekingalpha/latest-analysis`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data: SeekingAlphaArticle[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching latest Seeking Alpha analysis:', error);
+    throw error;
+  }
 }

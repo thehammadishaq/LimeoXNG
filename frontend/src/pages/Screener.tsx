@@ -18,7 +18,7 @@ const Screener = () => {
   const location = useLocation();
   const [stocks, setStocks] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(20);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [totalStocks, setTotalStocks] = useState(0);
   const [allSymbols, setAllSymbols] = useState<string[]>([]);
   const [selectedView, setSelectedView] = useState('overview');
@@ -38,7 +38,10 @@ const Screener = () => {
   const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
   const [latestCandles, setLatestCandles] = useState<Record<string, LatestCandleDbItem>>({});
   const [latestCandlesLoaded, setLatestCandlesLoaded] = useState(false);
+  // Applied search term actually used for API calls
   const [searchTerm, setSearchTerm] = useState('');
+  // UI input value, only applied when user clicks Search or presses Enter
+  const [searchInput, setSearchInput] = useState('');
 
   const loadLatestCandles = useCallback(async () => {
     if (latestCandlesLoaded) return;
@@ -233,6 +236,19 @@ const Screener = () => {
     }
   };
 
+  const handleSearchSubmit = () => {
+    // Trim whitespace and update the applied search term
+    setSearchTerm(searchInput.trim());
+  };
+
+  const handleItemsPerPageChange = (value: number) => {
+    const safeValue = Number.isNaN(value) || value <= 0 ? 20 : value;
+    setItemsPerPage(safeValue);
+    setCurrentPage(1);
+    // Reload symbols and first page with new page size
+    loadSymbolsAndPage(1, false);
+  };
+
   // When filters or search term change, refresh full symbol list and reset to first page
   useEffect(() => {
     loadSymbolsAndPage(1, false);
@@ -371,6 +387,18 @@ const Screener = () => {
             Screener
           </Link>
           <Link 
+            to="/analysis"
+            className={`nav-link ${location.pathname === '/analysis' ? 'nav-active' : ''}`}
+          >
+            Analysis
+          </Link>
+          <Link 
+            to="/experts"
+            className={`nav-link ${location.pathname === '/experts' ? 'nav-active' : ''}`}
+          >
+            Experts
+          </Link>
+          <Link 
             to="/ticker"
             className={`nav-link ${location.pathname === '/ticker' ? 'nav-active' : ''}`}
           >
@@ -397,8 +425,14 @@ const Screener = () => {
             <input
               type="text"
               placeholder="Search tickers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearchSubmit();
+                }
+              }}
               className="search-input"
               style={{
                 padding: '3px 6px',
@@ -419,6 +453,22 @@ const Screener = () => {
                 e.currentTarget.style.borderColor = 'var(--border-color)';
               }}
             />
+            <button
+              type="button"
+              onClick={handleSearchSubmit}
+              style={{
+                marginLeft: 6,
+                padding: '3px 8px',
+                fontSize: '11px',
+                borderRadius: '3px',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+              }}
+            >
+              Search
+            </button>
             <span className="separator">|</span>
             <select className="preset-select">
               <option>My Presets</option>
@@ -602,6 +652,28 @@ const Screener = () => {
           )}
         </div>
         <div className="results-actions">
+          <span style={{ fontSize: '11px', marginRight: 8 }}>
+            Rows per page:{' '}
+            <select
+              value={itemsPerPage}
+              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+              style={{
+                fontSize: '11px',
+                padding: '2px 4px',
+                borderRadius: 3,
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </span>
+          <span className="separator">|</span>
           <a
             href="#"
             onClick={(e) => {

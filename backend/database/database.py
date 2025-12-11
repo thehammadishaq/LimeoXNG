@@ -11,6 +11,12 @@ from models.screener import ScreenerData
 from models.stock_symbols import StockSymbolsCache
 from models.news import MarketNews, NewsArticleDocument
 from models.recommendation import RecommendationTrends
+from models.seekingalpha import SeekingAlphaArticleDocument
+from models.tipranks import (
+    TipRanksAnalystDocument,
+    TipRanksTopExpertDocument,
+    TipRanksExpertStockDocument,
+)
 from models.pattern import PatternScan
 from models.earnings import EarningsHistory
 from models.insider_transactions import InsiderTransactionDocument
@@ -61,6 +67,10 @@ async def init_db():
                 InsiderTransactionDocument,
                 ProfileCacheCronRun,
                 LatestCandle,
+                SeekingAlphaArticleDocument,
+                TipRanksAnalystDocument,
+                TipRanksTopExpertDocument,
+                TipRanksExpertStockDocument,
             ],
         )
         

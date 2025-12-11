@@ -668,6 +668,18 @@ const TickerPage: React.FC = () => {
             Screener
           </Link>
           <Link 
+            to="/analysis"
+            className={`nav-link ${location.pathname === '/analysis' ? 'nav-active' : ''}`}
+          >
+            Analysis
+          </Link>
+          <Link 
+            to="/experts"
+            className={`nav-link ${location.pathname === '/experts' ? 'nav-active' : ''}`}
+          >
+            Experts
+          </Link>
+          <Link 
             to="/ticker"
             className={`nav-link ${location.pathname === '/ticker' ? 'nav-active' : ''}`}
           >

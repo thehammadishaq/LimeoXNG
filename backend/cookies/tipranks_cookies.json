@@ -1,0 +1,123 @@
+{
+  "www.tipranks.com": {
+    "__cf_bm": {
+      "value": "4sjO85wD0PgMVNyPO3paQQC2x4zL7uLcqBIUgYmJd7U-1765173489-1.0.1.1-iedlEuTzG_dTvQ_0Qt4nUGdSO06vZU3ZaBN1J1rfLEkfEM59SMC5buDhCMejXNeVam8FqnzVooeTpX5kIk6jlkAToPQz4LhkMS4ZDi_CP0k",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "personal-message": {
+      "value": "none",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "tipranks-experiments": {
+      "value": "%7b%22Experiments%22%3a%5b%7b%22Name%22%3a%22general_A%22%2c%22Variant%22%3a%22v3%22%2c%22SendAnalytics%22%3afalse%7d%2c%7b%22Name%22%3a%22general_B%22%2c%22Variant%22%3a%22v2%22%2c%22SendAnalytics%22%3afalse%7d%2c%7b%22Name%22%3a%22general_C%22%2c%22Variant%22%3a%22v5%22%2c%22SendAnalytics%22%3afalse%7d%5d%7d",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "tipranks-experiments-slim": {
+      "value": "general_A%3av3%7cgeneral_B%3av2%7cgeneral_C%3av5",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "tr-experiments-version": {
+      "value": "1.14",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "tr-plan-id": {
+      "value": "0",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "tr-plan-name": {
+      "value": "free",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "loginType": {
+      "value": "login",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "nextPaymentProvider": {
+      "value": "null",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "paymentProviders": {
+      "value": "%5b%7b%22Name%22%3a%22FastSpring%22%2c%22Id%22%3a4%2c%22PaymentProvider%22%3a4%2c%22ProductPlanId%22%3a6%7d%5d",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "token": {
+      "value": "a90c333e3dfb8275d62fd69df304e7ddcdd82dac",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    },
+    "user": {
+      "value": "raotalhaibrahim%40gmail.com%2cRao+Talha%2c",
+      "domain": "",
+      "path": "/",
+      "expires": null,
+      "secure": false,
+      "httponly": false,
+      "samesite": ""
+    }
+  },
+  "tipranks.com": {
+    "__cf_bm": {
+      "value": "zKN4DBi7UJ24Qm0HNLS5wsgjLYxMiDT.NyvtcjLSWTo-1764927936-1.0.1.1-G1Y5QDlEPq3kZbeEMiB7O7ACWfXVCv4EgFHB0uA4GIC19IDjrrfEJ7BfI6eheWogSrJMjS_Uuq6KdhR_BGNkqmKB7EG5q2WXnaxxKf2PCA8",
+      "domain": ".tipranks.com",
+      "path": "/",
+      "expires": "Fri, 05-Dec-25 10:15:36 GMT",
+      "secure": true,
+      "httponly": true,
+      "samesite": "None"
+    }
+  }
+}

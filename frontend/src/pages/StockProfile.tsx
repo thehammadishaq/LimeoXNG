@@ -32,6 +32,7 @@ import {
   fetchCompanyNewsFromDb,
   fetchInsiderTransactions,
   fetchInsiderTransactionsFromDb,
+  fetchCompanyPeers,
   StockProfile as ApiStockProfile,
   StockFinancials,
   StockFinancialsSeriesEntry,
@@ -40,6 +41,7 @@ import {
   CompanyNewsArticle,
   InsiderTransaction,
   transformStockData,
+  BACKEND_API_BASE_URL,
 } from '../services/api';
 
 interface StockData {
@@ -70,10 +72,6 @@ interface StockData {
     source: string;
   }>;
   description: string;
-  institutionalOwnership: Array<{
-    name: string;
-    percentage: string;
-  }>;
 }
 
 interface CompanyNewsItem {
@@ -127,6 +125,24 @@ const StockProfile = () => {
     data: StockFinancialsSeriesEntry[];
   } | null>(null);
   const [metricsView, setMetricsView] = useState<'annual' | 'quarterly'>('annual');
+  const [ownershipLoading, setOwnershipLoading] = useState(false);
+  const [ownershipError, setOwnershipError] = useState<string | null>(null);
+  const [ownershipData, setOwnershipData] = useState<
+    Array<{ name: string; ownership: number | null; date: string | null; form_type: string | null }>
+  >([]);
+  
+  // Sort ownership data by ownership percentage in descending order
+  const sortedOwnershipData = useMemo(() => {
+    return [...ownershipData].sort((a, b) => {
+      // Handle null values - put them at the end
+      if (a.ownership === null && b.ownership === null) return 0;
+      if (a.ownership === null) return 1;
+      if (b.ownership === null) return -1;
+      // Sort in descending order (highest first)
+      return b.ownership - a.ownership;
+    });
+  }, [ownershipData]);
+  
   const [metricsFullViewOpen, setMetricsFullViewOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<RecommendationTrend[] | null>(null);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
@@ -136,6 +152,8 @@ const StockProfile = () => {
   const [companyNews, setCompanyNews] = useState<CompanyNewsItem[]>([]);
   const [companyNewsLoading, setCompanyNewsLoading] = useState(false);
   const [companyNewsError, setCompanyNewsError] = useState<string | null>(null);
+  const [peers, setPeers] = useState<string[]>([]);
+  const [peersLoading, setPeersLoading] = useState(false);
   const [insiderTransactions, setInsiderTransactions] = useState<InsiderTransaction[]>([]);
   const [insiderLoading, setInsiderLoading] = useState(false);
   const [insiderError, setInsiderError] = useState<string | null>(null);
@@ -158,6 +176,76 @@ const StockProfile = () => {
     };
 
     loadProfile();
+  }, [ticker]);
+
+  // Fetch institutional ownership from backend SEC Postgres API
+  useEffect(() => {
+    const symbol = ticker?.toUpperCase();
+    if (!symbol) return;
+
+    const controller = new AbortController();
+
+    const fetchOwnership = async () => {
+      try {
+        setOwnershipLoading(true);
+        setOwnershipError(null);
+
+        const resp = await fetch(
+          `${BACKEND_API_BASE_URL}/companies/ticker/${encodeURIComponent(symbol)}/institution-ownership?limit=1000`,
+          {
+            signal: controller.signal,
+          },
+        );
+
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error(text || `HTTP ${resp.status}`);
+        }
+
+        const data = (await resp.json()) as Array<{
+          name: string;
+          ownership: number | null;
+          date: string | null;
+          form_type: string | null;
+        }>;
+
+        setOwnershipData(data || []);
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+        console.error('Error fetching institutional ownership:', err);
+        setOwnershipError('Failed to load institutional ownership data.');
+        setOwnershipData([]);
+      } finally {
+        setOwnershipLoading(false);
+      }
+    };
+
+    fetchOwnership();
+
+    return () => {
+      controller.abort();
+    };
+  }, [ticker]);
+
+  // Fetch company peers from backend Finnhub API
+  useEffect(() => {
+    const symbol = ticker?.toUpperCase();
+    if (!symbol) return;
+
+    const fetchPeers = async () => {
+      try {
+        setPeersLoading(true);
+        const peersData = await fetchCompanyPeers(symbol, 'subIndustry');
+        setPeers(peersData || []);
+      } catch (err: any) {
+        console.error('Error fetching company peers:', err);
+        setPeers([]);
+      } finally {
+        setPeersLoading(false);
+      }
+    };
+
+    fetchPeers();
   }, [ticker]);
 
   // Load basic financials (metrics) from database (read-only /db/basic-financials/{ticker}) on initial load / ticker change
@@ -962,7 +1050,7 @@ const StockProfile = () => {
           'Volume': '58,735,354',
           'Change': '1.97%',
         },
-        peers: ['MSFT', 'SONY', 'DELL', 'GOOGL', 'HPQ', 'AMZN', 'NVDA', 'IBM', 'META', 'NFLX'],
+        peers: [], // Peers are now fetched from API
         heldBy: ['VTI', 'VOO', 'IVV', 'SPY', 'VUG', 'QQQ', 'VGT', 'IWF', 'XLK', 'SPLG'],
         analystRatings: [
           { date: 'Nov-04-25', action: 'Upgrade', analyst: 'DZ Bank', ratingChange: 'Hold → Buy', priceTarget: '$300' },
@@ -1001,19 +1089,8 @@ const StockProfile = () => {
           { time: '04:18PM', title: 'Google Surpasses Microsoft in Market Value. Why Alphabet Stock Is Winning', source: 'Barrons.com' },
           { time: '03:43PM', title: 'The Bulls Wild Ride: What We Have Here Is A Worrywart Market', source: 'Barrons.com' },
         ],
-        description: 'Apple, Inc. engages in the design, manufacture, and sale of smartphones, personal computers, tablets, wearables and accessories, and other varieties of related services. It operates through the following geographical segments: Americas, Europe, Greater China, Japan, and Rest of Asia Pacific. The Americas segment includes North and South America. The Europe segment consists of European countries, as well as India, the Middle East, and Africa. The Greater China segment comprises China, Hong Kong, and Taiwan. The Rest of Asia Pacific segment includes Australia and Asian countries. Its products and services include iPhone, Mac, iPad, AirPods, Apple TV, Apple Watch, Beats products, AppleCare, iCloud, digital content stores, streaming, and licensing services. The company was founded by Steven Paul Jobs, Ronald Gerald Wayne, and Stephen G. Wozniak in April 1976 and is headquartered in Cupertino, CA.',
-        institutionalOwnership: [
-          { name: 'VANGUARD GROUP INC', percentage: '9.43%' },
-          { name: 'BlackRock, Inc.', percentage: '7.72%' },
-          { name: 'STATE STREET CORP', percentage: '4.03%' },
-          { name: 'GEODE CAPITAL MANAGEMENT, LLC', percentage: '2.40%' },
-          { name: 'FMR LLC', percentage: '2.04%' },
-          { name: 'BERKSHIRE HATHAWAY INC', percentage: '1.61%' },
-          { name: 'JPMORGAN CHASE & CO', percentage: '1.59%' },
-          { name: 'MORGAN STANLEY', percentage: '1.54%' },
-          { name: 'PRICE T ROWE ASSOCIATES INC /MD/', percentage: '1.43%' },
-          { name: 'NORTHERN TRUST CORP', percentage: '1.11%' },
-        ],
+        description:
+          'Apple, Inc. engages in the design, manufacture, and sale of smartphones, personal computers, tablets, wearables and accessories, and other varieties of related services. It operates through the following geographical segments: Americas, Europe, Greater China, Japan, and Rest of Asia Pacific. The Americas segment includes North and South America. The Europe segment consists of European countries, as well as India, the Middle East, and Africa. The Greater China segment comprises China, Hong Kong, and Taiwan. The Rest of Asia Pacific segment includes Australia and Asian countries. Its products and services include iPhone, Mac, iPad, AirPods, Apple TV, Apple Watch, Beats products, AppleCare, iCloud, digital content stores, streaming, and licensing services. The company was founded by Steven Paul Jobs, Ronald Gerald Wayne, and Stephen G. Wozniak in April 1976 and is headquartered in Cupertino, CA.',
       };
 
       setStockData(mockData);
@@ -1232,6 +1309,18 @@ const StockProfile = () => {
             className={`nav-link ${(location.pathname === '/' || location.pathname === '/screener') ? 'nav-active' : ''}`}
           >
             Screener
+          </Link>
+          <Link 
+            to="/analysis"
+            className={`nav-link ${location.pathname === '/analysis' ? 'nav-active' : ''}`}
+          >
+            Analysis
+          </Link>
+          <Link 
+            to="/experts"
+            className={`nav-link ${location.pathname === '/experts' ? 'nav-active' : ''}`}
+          >
+            Experts
           </Link>
           <Link 
             to="/ticker"
@@ -1544,6 +1633,22 @@ const StockProfile = () => {
               height={400}
               loading={candlesLoading}
             />
+          </div>
+        </div>
+
+        {/* Peers & Holdings */}
+        <div className="peers-holdings" data-testid="peers-section">
+          <div className="peers-row">
+            <span className="label">Peers:</span>
+            {peersLoading ? (
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Loading peers...</span>
+            ) : peers.length > 0 ? (
+              peers.map((peer) => (
+                <Link key={peer} to={`/stock/${peer}`} className="ticker-link" data-testid={`peer-${peer}`}>{peer}</Link>
+              ))
+            ) : (
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>No peers available</span>
+            )}
           </div>
         </div>
 
@@ -2066,22 +2171,6 @@ const StockProfile = () => {
           </div>
         </div>
 
-        {/* Peers & Holdings */}
-        <div className="peers-holdings" data-testid="peers-section">
-          <div className="peers-row">
-            <span className="label">Peers:</span>
-            {(stockData?.peers ?? []).map((peer) => (
-              <Link key={peer} to={`/stock/${peer}`} className="ticker-link" data-testid={`peer-${peer}`}>{peer}</Link>
-            ))}
-          </div>
-          <div className="holdings-row">
-            <span className="label">Held by:</span>
-            {(stockData?.heldBy ?? []).map((fund) => (
-              <Link key={fund} to={`/stock/${fund}`} className="ticker-link" data-testid={`held-${fund}`}>{fund}</Link>
-            ))}
-          </div>
-        </div>
-
         {/* Main Content Layout */}
         <div className="content-grid">
           {/* All Finnhub raw metrics from /basic-financials.metric (full width) */}
@@ -2364,47 +2453,77 @@ const StockProfile = () => {
         {/* Institutional Ownership - full-width panel like All Finnhub Metrics / Latest News */}
         <div className="content-grid">
           <div className="fundamentals-panel" data-testid="institutional-ownership">
-              <h3 className="panel-title">Institutional Ownership</h3>
+            <h3 className="panel-title">Institutional Ownership</h3>
             <div className="metrics-table-scroll chart-block">
+              {ownershipLoading && (
+                <div className="chart-loading-overlay">
+                  <div className="chart-loading-spinner" />
+                  <div className="chart-loading-text">Loading institutional ownership...</div>
+                </div>
+              )}
               <table className="data-table ownership-table">
-                  <thead>
+                <thead>
+                  <tr>
+                    <th>Institution</th>
+                    <th>Ownership</th>
+                    <th>Report Date</th>
+                    <th>Form Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ownershipLoading ? null : ownershipError ? (
                     <tr>
-                      <th>Institution</th>
-                      <th>Ownership</th>
+                      <td
+                        colSpan={4}
+                        style={{
+                          textAlign: 'center',
+                          padding: '16px',
+                          fontSize: 12,
+                          color: 'var(--negative)',
+                        }}
+                      >
+                        {ownershipError}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {(stockData?.institutionalOwnership ?? []).length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={2}
-                          style={{
-                            textAlign: 'center',
-                            padding: '16px',
-                            fontSize: 12,
-                            color: 'var(--text-secondary)',
-                          }}
-                        >
-                          No institutional ownership data available.
+                  ) : sortedOwnershipData.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        style={{
+                          textAlign: 'center',
+                          padding: '16px',
+                          fontSize: 12,
+                          color: 'var(--text-secondary)',
+                        }}
+                      >
+                        No institutional ownership data available.
+                      </td>
+                    </tr>
+                  ) : (
+                    sortedOwnershipData.map((holder, idx) => (
+                      <tr key={`${holder.name}-${holder.date}-${holder.form_type}-${idx}`}>
+                        <td>
+                          <span className="institution-name">{holder.name || '—'}</span>
+                        </td>
+                        <td>
+                          <span className="ownership-percent">
+                            {holder.ownership != null ? `${holder.ownership.toFixed(4)}%` : '—'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="ownership-date">{holder.date || '—'}</span>
+                        </td>
+                        <td>
+                          <span className="ownership-form">{holder.form_type || '—'}</span>
                         </td>
                       </tr>
-                    ) : (
-                      (stockData?.institutionalOwnership ?? []).map((holder, idx) => (
-                        <tr key={idx}>
-                          <td>
-                  <span className="institution-name">{holder.name}</span>
-                          </td>
-                          <td>
-                  <span className="ownership-percent">{holder.percentage}</span>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-                </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
+        </div>
 
         {/* Bottom Sections */}
         <div className="bottom-grid" data-testid="bottom-sections">

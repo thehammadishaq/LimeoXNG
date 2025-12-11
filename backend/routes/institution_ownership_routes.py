@@ -49,6 +49,12 @@ async def get_institution_ownership_by_ticker_endpoint(
         None,
         description="Current date in YYYY-MM-DD format. If not provided, uses today's date.",
     ),
+    limit: int = Query(
+        100,
+        ge=1,
+        le=1000,
+        description="Maximum number of institutions to return (default 100).",
+    ),
     db: Session = Depends(get_db),
 ) -> List[InstitutionOwnershipResponse]:
     """
@@ -57,7 +63,7 @@ async def get_institution_ownership_by_ticker_endpoint(
     - Uses PostgreSQL SEC database (companies, filers, filings, positions, ticker_details).
     - For 13F-HR forms, ownership is calculated from shares and weighted_shares_outstanding.
     - For other forms (13G, 13D, etc.), uses ownership_percent stored in DB.
-    - Returns top 100 unique institutions (latest filings first).
+    - Returns up to `limit` unique institutions (latest filings first, default 100).
     """
     parsed_current_date: Optional[date] = None
     if current_date:
@@ -74,6 +80,7 @@ async def get_institution_ownership_by_ticker_endpoint(
             db=db,
             ticker=ticker,
             current_date=parsed_current_date,
+            limit=limit,
         )
     except ValueError as e:
         raise HTTPException(

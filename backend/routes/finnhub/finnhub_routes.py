@@ -13,6 +13,7 @@ from models.finnhub.pattern import PatternScanFetchResponse
 from models.finnhub.earnings import EarningsFetchResponse
 from schemas.stock_symbols import StockSymbolsListResponse
 from models.finnhub.insider_transactions import InsiderTransactionsFetchResponse
+from models.finnhub.peers import PeersFetchResponse
 from controllers.finnhub.profile_controller import fetch_profile_get
 from controllers.finnhub.basic_financials_controller import fetch_basic_financials_get
 from controllers.finnhub.news_controller import fetch_market_news_get
@@ -31,6 +32,7 @@ from controllers.finnhub.insider_transactions_controller import (
     fetch_insider_transactions_get,
 )
 from controllers.finnhub.quote_controller import fetch_quote_get
+from controllers.finnhub.peers_controller import fetch_peers_get
 from services.symbols_cache_service import SymbolsCacheService
 from models.cron_profile_cache import ProfileCacheCronRun, CronTickerResult
 
@@ -288,6 +290,45 @@ async def fetch_earnings(
     """
     # Pass None if limit is not positive, but we already enforce ge=1 so it's safe
     return await fetch_earnings_get(ticker, limit, save_to_db)
+
+
+@router.get(
+    "/stock/peers",
+    response_model=PeersFetchResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def fetch_peers(
+    symbol: str = Query(
+        ...,
+        description="Symbol of the company (e.g., AAPL)",
+        example="AAPL"
+    ),
+    grouping: str = Query(
+        "subIndustry",
+        description="Specify the grouping criteria for choosing peers. Supported values: sector, industry, subIndustry. Default to subIndustry.",
+        example="industry"
+    ),
+):
+    """
+    Get company peers. Return a list of peers operating in the same country and sector/industry.
+    
+    Examples:
+    - /finnhub/stock/peers?symbol=AAPL
+    - /finnhub/stock/peers?symbol=F&grouping=industry
+    
+    Args:
+        symbol: Symbol of the company (e.g., AAPL)
+        grouping: Grouping criteria for choosing peers. Supported values: sector, industry, subIndustry. Default: subIndustry.
+    """
+    # Validate grouping parameter
+    valid_groupings = ["sector", "industry", "subIndustry"]
+    if grouping not in valid_groupings:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid grouping '{grouping}'. Supported values: {', '.join(valid_groupings)}"
+        )
+    
+    return await fetch_peers_get(symbol, grouping)
 
 
 @router.post(

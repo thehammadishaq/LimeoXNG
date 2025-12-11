@@ -1,15 +1,22 @@
 """
 Application Settings and Configuration
 """
-from pydantic_settings import BaseSettings
-from pydantic import field_validator, model_validator
 from typing import List, Optional
 import json
+
+from pydantic import field_validator, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Application settings"""
-    
+
+    # Pydantic settings config (v2 style)
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore",  # Ignore unknown env vars like `psql`
+    )
     # Server settings
     HOST: str = "0.0.0.0"
     PORT: int = 8000
@@ -34,10 +41,21 @@ class Settings(BaseSettings):
     POLYGON_API_KEY: Optional[str] = None
     # Default Finnhub API key (can be overridden via environment variable or backend/.env)
     FINNHUB_API_KEY: Optional[str] = "d4gjo9hr01qm5b35u86gd4gjo9hr01qm5b35u870"
+
+    # TipRanks credentials (must be provided via environment / .env)
+    TIPRANKS_EMAIL: Optional[str] = None
+    TIPRANKS_PASSWORD: Optional[str] = None
     
     # Proxy settings for rate limiting
     PROXY_SERVER: Optional[str] = None  # Single proxy (backward compatible)
     PROXY_SERVERS: Optional[str] = None  # Comma-separated list of proxies for rotation
+
+    # Optional Postgres connection string for SEC / ownership data
+    # Example in backend/.env:
+    #   POSTGRES_URL=postgresql://user:password@host:5432/sec_db
+    # or, for backward-compatibility with existing env:
+    #   psql=postgresql://user:password@host:5432/sec_db
+    POSTGRES_URL: Optional[str] = None
     
     @model_validator(mode='after')
     def parse_cors_origins(self):
@@ -72,10 +90,6 @@ class Settings(BaseSettings):
         if isinstance(self.CORS_ORIGINS, list):
             return self.CORS_ORIGINS
         return []
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
 
 
 # Create settings instance

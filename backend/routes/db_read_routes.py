@@ -45,6 +45,7 @@ from models.cron_profile_cache import ProfileCacheCronRun
 from models.stock_candles import LatestCandle
 from models.company_profile import CompanyProfile
 from models.basic_financials import BasicFinancials
+from models.seekingalpha import SeekingAlphaArticleDocument
 
 
 router = APIRouter(prefix="/db", tags=["Database Read-Only"])
@@ -1098,5 +1099,106 @@ async def list_latest_candles_from_db(
     return {
         "items": items,
         "total": len(items),
+    }
+
+
+@router.get(
+    "/seekingalpha-analysis",
+    status_code=status.HTTP_200_OK,
+)
+async def get_seekingalpha_analysis_from_db(
+    page: int = Query(1, ge=1, description="Page number (1-based)"),
+    page_size: int = Query(
+        50, ge=1, le=500, description="Number of items per page (max 500)"
+    ),
+):
+    """
+    Read-only endpoint to get Seeking Alpha analysis articles from MongoDB
+    (collection: seekingalpha-analysis-articles) with pagination.
+    Returns articles sorted by most recent first.
+    """
+    skip = (page - 1) * page_size
+    
+    # Get all documents first (for proper sorting with nulls)
+    # Then sort in Python and paginate
+    all_docs = await SeekingAlphaArticleDocument.find().to_list()
+    
+    # Remove duplicates by URL (keep the one with latest published_date or created_at)
+    from datetime import datetime as dt_datetime
+    
+    seen_urls = {}
+    for doc in all_docs:
+        url = doc.url
+        if url not in seen_urls:
+            seen_urls[url] = doc
+        else:
+            # If duplicate found, keep the one with newer date
+            existing_doc = seen_urls[url]
+            # Use getattr to safely access published_date (in case field doesn't exist on old documents)
+            existing_published = getattr(existing_doc, 'published_date', None)
+            existing_date = existing_published if existing_published else existing_doc.created_at
+            current_published = getattr(doc, 'published_date', None)
+            current_date = current_published if current_published else doc.created_at
+            
+            if current_date and existing_date:
+                if current_date > existing_date:
+                    # Replace with newer version
+                    seen_urls[url] = doc
+            elif current_date and not existing_date:
+                # Current has date, existing doesn't - replace
+                seen_urls[url] = doc
+            elif not current_date and existing_date:
+                # Existing has date, current doesn't - keep existing
+                pass
+            else:
+                # Both have created_at, keep the newer one
+                if current_date > existing_date:
+                    seen_urls[url] = doc
+    
+    deduplicated_docs = list(seen_urls.values())
+    
+    # Sort by published_date (newest first), fallback to created_at if published_date is None
+    # Custom sort function to ensure:
+    # 1. Articles with published_date come first
+    # 2. Within each group, sort by date descending (newest first)
+    def sort_key(doc):
+        # Use getattr to safely access published_date (in case field doesn't exist on old documents)
+        published = getattr(doc, 'published_date', None)
+        if published:
+            # Articles with published_date: use published_date, prioritize with high value
+            return (1, published)
+        else:
+            # Articles without published_date: use created_at, lower priority
+            return (0, doc.created_at if doc.created_at else dt_datetime.min)
+    
+    docs_sorted = sorted(
+        deduplicated_docs,
+        key=sort_key,
+        reverse=True  # (1, newer_date) > (1, older_date) > (0, newer_date) > (0, older_date)
+    )
+    
+    # Apply pagination after sorting
+    total = len(docs_sorted)
+    docs = docs_sorted[skip:skip + page_size]
+
+    items = [
+        {
+            "title": doc.title,
+            "signal": doc.signal,
+            "time": doc.time,
+            "published_date": getattr(doc, 'published_date', None).isoformat() if getattr(doc, 'published_date', None) else None,
+            "tickers": doc.tickers,
+            "author": doc.author,
+            "summary": doc.summary,
+            "url": doc.url,
+        }
+        for doc in docs  # Use docs (paginated) instead of docs_sorted (all)
+    ]
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
     }
 

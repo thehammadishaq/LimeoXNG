@@ -11,6 +11,9 @@ yfinance==0.2.40
 pandas==2.2.0
 wikipedia==1.4.0
 requests==2.31.0
+httpx==0.27.0
+cloudscraper==1.2.71
+tipranks==0.8.0
 python-dotenv==1.0.0
 networkx==3.2.1
 pyvis==0.3.2

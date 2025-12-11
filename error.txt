@@ -1,32 +1,57 @@
-routes import api_router
-  File "/media/limeox/nvme4tb/LimeoXNG/backend/routes/__init__.py", line 6, in <module>
-    from .institution_ownership_routes import router as institution_ownership_router
-  File "/media/limeox/nvme4tb/LimeoXNG/backend/routes/institution_ownership_routes.py", line 15, in <module>
-    from sqlalchemy.orm import Session
-ModuleNotFoundError: No module named 'sqlalchemy'
-WARNING:  WatchFiles detected changes in 'routes/__init__.py', 'services/institution_ownership_service.py', 'routes/institution_ownership_routes.py'. Reloading...
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-  File "/usr/lib/python3.10/multiprocessing/spawn.py", line 116, in spawn_main
-    exitcode = _main(fd, parent_sentinel)
-  File "/usr/lib/python3.10/multiprocessing/spawn.py", line 125, in _main
-    prepare(preparation_data)
-  File "/usr/lib/python3.10/multiprocessing/spawn.py", line 236, in prepare
-    _fixup_main_from_path(data['init_main_from_path'])
-  File "/usr/lib/python3.10/multiprocessing/spawn.py", line 287, in _fixup_main_from_path
-    main_content = runpy.run_path(main_path,
-  File "/usr/lib/python3.10/runpy.py", line 289, in run_path
-    return _run_module_code(code, init_globals, run_name,
-  File "/usr/lib/python3.10/runpy.py", line 96, in _run_module_code
-    _run_code(code, mod_globals, init_globals,
-  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
-    exec(code, run_globals)
-  File "/media/limeox/nvme4tb/LimeoXNG/backend/main.py", line 11, in <module>
-    from routes import api_router
-  File "/media/limeox/nvme4tb/LimeoXNG/backend/routes/__init__.py", line 6, in <module>
-    from .institution_ownership_routes import router as institution_ownership_router
-  File "/media/limeox/nvme4tb/LimeoXNG/backend/routes/institution_ownership_routes.py", line 15, in <module>
-    from sqlalchemy.orm import Session
-ModuleNotFoundError: No module named 'sqlalchemy'
+MongoDB connected to LimeoXNG
+   Connection: Atlas
+INFO:     Application startup complete.
+INFO:     192.168.1.28:54320 - "GET /docs HTTP/1.1" 200 OK
+INFO:     192.168.1.28:54320 - "GET /openapi.json HTTP/1.1" 200 OK
+🌐 Postman-like request flow (Playwright with real browser engine):
+   📍 Step 1: Visiting homepage to establish session...
+   GET https://www.tipranks.com/
+   ⏳ Waiting for page to load (including Cloudflare challenge if present)...
+   ℹ️ No Cloudflare challenge detected or timeout
+   ✅ Homepage visited, session established
+   📍 Step 2: Making API call with established session
+   GET https://www.tipranks.com/api/experts/getStocks?benchmark=none&period=year&name=atif-malik
+   Parameters: {'benchmark': 'none', 'period': 'year', 'name': 'atif-malik'}
+❌ HTTP error fetching TipRanks Expert Stocks: 403
+   Response: <!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box;margin:0;padding:0}html{line-height:1.15;-webkit-text-size-adjust:100%;color:#313131;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helve
+   🔄 Got 403, retrying with fresh homepage visit...
+❌ Error fetching TipRanks Expert Stocks from API: Page.goto: Target page, context or browser has been closed
+   Traceback: Traceback (most recent call last):
+  File "/media/limeox/nvme4tb1/LimeoXNG/backend/services/tipranks/expert_stocks_service.py", line 302, in fetch_expert_stocks_from_api
+    await page.goto(
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/async_api/_generated.py", line 8969, in goto
+    await self._impl_obj.goto(
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/_impl/_page.py", line 553, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/_impl/_frame.py", line 145, in goto
+    await self._channel.send("goto", locals_to_params(locals()))
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/_impl/_connection.py", line 59, in send
+    return await self._connection.wrap_api_call(
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/_impl/_connection.py", line 520, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.goto: Target page, context or browser has been closed
+
+❌ Error in tipranks_expert_stocks endpoint: Page.goto: Target page, context or browser has been closed
+   Traceback: Traceback (most recent call last):
+  File "/media/limeox/nvme4tb1/LimeoXNG/backend/routes/tipranks/tipranks_routes.py", line 450, in tipranks_expert_stocks
+    result = await fetch_and_save_expert_stocks(
+  File "/media/limeox/nvme4tb1/LimeoXNG/backend/services/tipranks/expert_stocks_service.py", line 438, in fetch_and_save_expert_stocks
+    stocks = await fetch_expert_stocks_from_api(
+  File "/media/limeox/nvme4tb1/LimeoXNG/backend/services/tipranks/expert_stocks_service.py", line 302, in fetch_expert_stocks_from_api
+    await page.goto(
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/async_api/_generated.py", line 8969, in goto
+    await self._impl_obj.goto(
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/_impl/_page.py", line 553, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/_impl/_frame.py", line 145, in goto
+    await self._channel.send("goto", locals_to_params(locals()))
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/_impl/_connection.py", line 59, in send
+    return await self._connection.wrap_api_call(
+  File "/home/limeox/.local/lib/python3.10/site-packages/playwright/_impl/_connection.py", line 520, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.goto: Target page, context or browser has been closed
+
+INFO:     192.168.1.28:50135 - "GET /api/v1/scraper/tipranks/expert-stocks?name=atif-malik&period=year&benchmark=none&save_to_db=true&use_db=false&skip=0 HTTP/1.1" 500 Internal Server Error
+
 
 

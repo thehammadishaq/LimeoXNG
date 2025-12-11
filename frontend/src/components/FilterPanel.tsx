@@ -8,14 +8,189 @@ interface FilterPanelProps {
   filterOptions: any;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  apiParams?: {
+    num_experts: number;
+    period: string;
+    benchmark: string;
+    country: string;
+    save_to_db: boolean;
+    use_db: boolean;
+    limit?: number;
+    skip: number;
+  };
+  setApiParams?: React.Dispatch<React.SetStateAction<{
+    num_experts: number;
+    period: string;
+    benchmark: string;
+    country: string;
+    save_to_db: boolean;
+    use_db: boolean;
+    limit?: number;
+    skip: number;
+  }>>;
+  showApiParams?: boolean;
 }
 
-const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveTab }: FilterPanelProps) => {
+const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveTab, apiParams, setApiParams, showApiParams = false }: FilterPanelProps) => {
   const handleFilterChange = (filterName: string, value: string) => {
     setFilters((prev: any) => ({
       ...prev,
       [filterName]: value
     }));
+  };
+
+  const handleApiParamChange = (paramName: string, value: any) => {
+    if (setApiParams && apiParams) {
+      setApiParams((prev: any) => ({
+        ...prev,
+        [paramName]: value
+      }));
+    }
+  };
+
+  const renderApiParameters = () => {
+    if (!apiParams || !setApiParams) return null;
+
+    return (
+      <div className="filter-grid">
+        <div className="filter-item" style={{ gridColumn: '1 / -1', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+          <strong>API Parameters</strong>
+        </div>
+
+        {/* num_experts */}
+        <div className="filter-item">
+          <label>
+            <span className="filter-label-with-tooltip">
+              Number of Experts
+              <span className="tooltip-icon" title="Number of experts to fetch (1-10000)">
+                ?
+              </span>
+            </span>
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="10000"
+            value={apiParams.num_experts}
+            onChange={(e) => handleApiParamChange('num_experts', Math.max(1, Math.min(10000, parseInt(e.target.value) || 1000)))}
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        {/* period */}
+        <div className="filter-item">
+          <label>Time Period</label>
+          <select
+            value={apiParams.period}
+            onChange={(e) => handleApiParamChange('period', e.target.value)}
+          >
+            <option value="year">Year</option>
+            <option value="month">Month</option>
+            <option value="quarter">Quarter</option>
+            <option value="week">Week</option>
+          </select>
+        </div>
+
+        {/* benchmark */}
+        <div className="filter-item">
+          <label>Benchmark</label>
+          <select
+            value={apiParams.benchmark}
+            onChange={(e) => handleApiParamChange('benchmark', e.target.value)}
+          >
+            <option value="none">None</option>
+            <option value="sp500">S&P 500</option>
+            <option value="nasdaq">NASDAQ</option>
+            <option value="dow">Dow Jones</option>
+          </select>
+        </div>
+
+        {/* country */}
+        <div className="filter-item">
+          <label>Country</label>
+          <select
+            value={apiParams.country}
+            onChange={(e) => handleApiParamChange('country', e.target.value)}
+          >
+            <option value="us">US</option>
+            <option value="ca">Canada</option>
+            <option value="uk">UK</option>
+            <option value="au">Australia</option>
+          </select>
+        </div>
+
+        {/* save_to_db */}
+        <div className="filter-item">
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={apiParams.save_to_db}
+              onChange={(e) => handleApiParamChange('save_to_db', e.target.checked)}
+            />
+            <span>Save to Database</span>
+          </label>
+        </div>
+
+        {/* use_db */}
+        <div className="filter-item">
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={apiParams.use_db}
+              onChange={(e) => {
+                handleApiParamChange('use_db', e.target.checked);
+                // Clear limit when disabling use_db
+                if (!e.target.checked) {
+                  handleApiParamChange('limit', undefined);
+                }
+              }}
+            />
+            <span>Use Database (Read from MongoDB)</span>
+          </label>
+        </div>
+
+        {/* limit (only shown when use_db is true) */}
+        {apiParams.use_db && (
+          <div className="filter-item">
+            <label>
+              <span className="filter-label-with-tooltip">
+                Limit Results
+                <span className="tooltip-icon" title="Limit number of results when using database (minimum: 1)">
+                  ?
+                </span>
+              </span>
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={apiParams.limit || ''}
+              onChange={(e) => handleApiParamChange('limit', e.target.value ? parseInt(e.target.value) : undefined)}
+              placeholder="No limit"
+              style={{ width: '100%' }}
+            />
+          </div>
+        )}
+
+        {/* skip */}
+        <div className="filter-item">
+          <label>
+            <span className="filter-label-with-tooltip">
+              Skip Results
+              <span className="tooltip-icon" title="Skip number of results for pagination (default: 0)">
+                ?
+              </span>
+            </span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={apiParams.skip}
+            onChange={(e) => handleApiParamChange('skip', Math.max(0, parseInt(e.target.value) || 0))}
+            style={{ width: '100%' }}
+          />
+        </div>
+      </div>
+    );
   };
 
   const renderValuationFilters = () => (
@@ -2255,6 +2430,14 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
         >
           All
         </button>
+        {showApiParams && (
+          <button 
+            className={activeTab === 'parameters' ? 'tab-active' : ''}
+            onClick={() => setActiveTab('parameters')}
+          >
+            Parameters
+          </button>
+        )}
       </div>
 
       {/* Filter Content */}
@@ -2284,6 +2467,7 @@ const FilterPanel = ({ filters, setFilters, filterOptions, activeTab, setActiveT
             {renderLatestCandleFilters()}
           </>
         )}
+        {showApiParams && activeTab === 'parameters' && renderApiParameters()}
       </div>
     </div>
   );

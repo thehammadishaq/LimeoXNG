@@ -1950,6 +1950,12 @@ html.dark-theme .news-panel .table-container.scrollbar-custom,
 
 .metrics-table-scroll {
   margin-top: 4px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+  /* Ensure custom scrollbar styling also applies here (especially in Firefox) */
+  scrollbar-width: thin;
+  scrollbar-color: #6b7280 #f5f5f5;
 }
 
 .data-grid {
@@ -2436,4 +2442,33 @@ html.dark-theme .news-panel .table-container.scrollbar-custom,
   .sector-map {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* Hide scrollbar for Stock Coverage table */
+.stock-coverage-table-wrapper {
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  overflow: hidden !important;
+}
+
+.stock-coverage-table-wrapper::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Hide scrollbar for Experts table */
+.experts-table-wrapper.table-container.scrollbar-custom,
+.experts-table-wrapper.table-container,
+.experts .table-container.scrollbar-custom {
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+.experts-table-wrapper.table-container.scrollbar-custom::-webkit-scrollbar,
+.experts-table-wrapper.table-container::-webkit-scrollbar,
+.experts .table-container.scrollbar-custom::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }

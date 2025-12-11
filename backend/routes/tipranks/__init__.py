@@ -1,0 +1,2 @@
+"""TipRanks API routes."""
+
